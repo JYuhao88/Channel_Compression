@@ -162,7 +162,7 @@ class CRBlock(nn.Module):
 class Encoder(nn.Module):
     B = 4
 
-    def __init__(self, feedback_bits):
+    def __init__(self, feedback_bits, quantization=True):
         super(Encoder, self).__init__()
         self.encoder1 = nn.Sequential(OrderedDict([
             ("conv3x3_bn", ConvBN(2, 32, 3)),
@@ -181,6 +181,7 @@ class Encoder(nn.Module):
         self.fc = nn.Linear(768, int(feedback_bits / self.B))
         self.sig = nn.Sigmoid()
         self.quantize = QuantizationLayer(self.B)
+        self.quantization = quantization
 
     def forward(self, x):
         x = x.permute(0, 3, 1, 2)
@@ -192,14 +193,17 @@ class Encoder(nn.Module):
         out = self.fc(out)
         out = self.sig(out)
         out = self.quantize(out)
-
+        if self.quantization:
+            out = self.quantize(out)
+        else:
+            out = out
         return out
 
 
 class Decoder(nn.Module):
     B = 4
 
-    def __init__(self, feedback_bits):
+    def __init__(self, feedback_bits, quantization=True):
         super(Decoder, self).__init__()
         self.feedback_bits = feedback_bits
         self.dequantize = DequantizationLayer(self.B)
@@ -213,11 +217,16 @@ class Decoder(nn.Module):
         self.decoder_feature = nn.Sequential(decoder)
         self.out_cov = conv3x3(32, 2)
         self.sig = nn.Sigmoid()
+        self.quantization = quantization 
 
     def forward(self, x):
+        if self.quantization:
+            out = self.dequantize(x)
+        else:
+            out = x
         out = self.dequantize(x)
         out = out.contiguous().view(-1, int(self.feedback_bits / self.B))
-        out = self.sig(self.fc(out))
+        out = self.fc(out)
         out = out.contiguous().view(-1, 2, 24, 16)
         out = self.decoder_feature(out)
         out = self.out_cov(out)

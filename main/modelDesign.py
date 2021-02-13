@@ -175,7 +175,7 @@ class Encoder(nn.Module):
         encode2 = self.encoder2(x)
         out = torch.cat((encode1, encode2), dim=1)
         out = self.encoder_conv(out)
-        out = out.view(-1, 768)
+        out = out.contiguous().view(-1, 768)
         out = self.fc(out)
         out = self.sig(out)
         if self.quantization:
