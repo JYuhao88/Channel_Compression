@@ -130,10 +130,9 @@ if __name__ == "__main__":
         
         for i, input in enumerate(train_loader):
             input = input.cuda()
-            channel_encode = model.encoder(input)
-            output = model.decoder(channel_encode)
+            output = model(input)
             
-            loss = criterion(input, output) + l1_cuda(channel_encode)
+            loss = criterion(input, output)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
