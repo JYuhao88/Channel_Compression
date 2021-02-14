@@ -69,13 +69,12 @@ if __name__ == "__main__":
     num_workers = 4
 
     # parameters for data
-    feedback_bits = args.feedback_bits
     img_height = 24
     img_width = 16
     img_channels = 2
 
     # Model construction
-    model = AutoEncoder(feedback_bits)
+    model = AutoEncoder(args.feedback_bits)
     model = set_quantization(model, False)
 
     if args.continue_training:

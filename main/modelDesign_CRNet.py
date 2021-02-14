@@ -7,7 +7,7 @@ Author, Fan xu Aug 2020
 changed by seefun Aug 2020 
 github.com/seefun | kaggle.com/seefun
 
-CRNet 能跑通 可提交
+CRNet
 """
 import numpy as np
 import torch.nn as nn
@@ -192,7 +192,6 @@ class Encoder(nn.Module):
         out = out.contiguous().view(-1, 768)
         out = self.fc(out)
         out = self.sig(out)
-        out = self.quantize(out)
         if self.quantization:
             out = self.quantize(out)
         else:
@@ -224,7 +223,6 @@ class Decoder(nn.Module):
             out = self.dequantize(x)
         else:
             out = x
-        out = self.dequantize(x)
         out = out.contiguous().view(-1, int(self.feedback_bits / self.B))
         out = self.fc(out)
         out = out.contiguous().view(-1, 2, 24, 16)
