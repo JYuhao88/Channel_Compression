@@ -47,11 +47,11 @@ def save_model(model, model_save_address='./modelSubmit'):
 if __name__ == "__main__":
     # Parameters for training
     parser = argparse.ArgumentParser()
-    parser.add_argument("--continue_training", type=bool, default=True)
-    parser.add_argument("--batch_size", type=int, default=256)
+    parser.add_argument("--continue_training", type=bool, default=False)
+    parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--learning_rate", type=float, default=2e-3)
-    parser.add_argument("--print_freq", type=int, default=500)
+    parser.add_argument("--print_freq", type=int, default=100)
     parser.add_argument("--train_test_ratio", type=float, default=0.8)
     parser.add_argument("--feedback_bits", type=int, default=512)
     parser.add_argument("--is_quantization", type=bool, default=True)
@@ -118,11 +118,13 @@ if __name__ == "__main__":
         print('lr:%.4e'%optimizer.param_groups[0]['lr']) 
         # model training
         model.train()
-        if epoch < args.epochs/10 or best_loss>0.095:
+        if epoch < args.epochs/10 or best_loss>0.095 and not args.is_quantization:
             model = set_quantization(model, False)
+            print('Quantization has been turned off')
         else:
             model = set_quantization(model, True)
-            
+            print('Quantization has been turned on')
+        
         if epoch == args.epochs//4 * 3:
             optimizer.param_groups[0]['lr'] =  optimizer.param_groups[0]['lr'] * 0.25
         

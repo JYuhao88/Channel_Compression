@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
-"""An Implement of an autoencoder with pytorch.
-This is the template code for 2020 NIAC https://naic.pcl.ac.cn/.
-The code is based on the sample code with tensorflow for 2020 NIAC and it can only run with GPUS.
-If you have any questions, please contact me with https://github.com/xufana7/AutoEncoder-with-pytorch
-Author, Fan xu Aug 2020
-changed by seefun Aug 2020 
-github.com/seefun | kaggle.com/seefun
-
+"""
 CRNet
+用反卷积代替量化层的实现
 """
 import numpy as np
 import torch.nn as nn
@@ -15,6 +9,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from collections import OrderedDict
+# import torchsnooper
 
 NUM_FEEDBACK_BITS = 512 #pytorch版本一定要有这个参数
 
@@ -38,7 +33,7 @@ def Num2Bit(Num, B):
 def Bit2Num(Bit, B):
     Bit_ = Bit.type(torch.float32)
     Bit_ = torch.reshape(Bit_, [-1, int(Bit_.shape[1] / B), B])
-    num = torch.zeros(Bit_[:, :, 1].shape).cuda()
+    num = torch.zeros(Bit_[:, :, 0].shape).cuda()
     for i in range(B):
         num = num + Bit_[:, :, i] * 2 ** (B - 1 - i)
     return num
@@ -89,12 +84,28 @@ class Dequantization(torch.autograd.Function):
 
 class QuantizationLayer(nn.Module):
 
-    def __init__(self, B):
+    def __init__(self, B=4):
         super(QuantizationLayer, self).__init__()
         self.B = B
+        self.iconv1x4 = nn.ConvTranspose1d(1, 1, 4, 4)
+        self.sig = nn.Sigmoid()
 
-    def forward(self, x):
-        out = Quantization.apply(x, self.B)
+    
+    def forward(self, x, quantization, method):
+        if method == 'binary':
+            if not quantization:
+                out = x
+            else:
+                out = Quantization.apply(x, self.B)
+        elif method == 'iconv':
+            out = x.unsqueeze(1)
+            out = self.iconv1x4(out)
+            out = self.sig(out)
+            out = out.squeeze(1)
+            if not quantization:
+                out = out
+            else:
+                out = Quantization.apply(out, 1)
         return out
 
 class DequantizationLayer(nn.Module):
@@ -102,9 +113,25 @@ class DequantizationLayer(nn.Module):
     def __init__(self, B):
         super(DequantizationLayer, self).__init__()
         self.B = B
+        self.conv4x1 = nn.Conv1d(1, 1, 4, stride=4)
 
-    def forward(self, x):
-        out = Dequantization.apply(x, self.B)
+    # @torchsnooper.snoop()
+    def forward(self, x, quantization, method, feedback_bits):
+        if method == 'binary':
+            if not quantization:
+                out = x
+            else:
+                out = Dequantization.apply(x, self.B)
+            out = out.contiguous().view(-1, int(feedback_bits / self.B))
+        elif method == 'iconv':
+            if not quantization:
+                out = x
+            else:
+                out = Dequantization.apply(x, 1)
+            out = out.contiguous().view(-1, int(feedback_bits / self.B))
+            out = out.unsqueeze(1)
+            out = self.conv4x1(out)
+            out = out.squeeze(1)
         return out
 
 
@@ -180,9 +207,10 @@ class Encoder(nn.Module):
 
         self.fc = nn.Linear(768, int(feedback_bits / self.B))
         self.sig = nn.Sigmoid()
-        self.quantize = QuantizationLayer(self.B)
+        self.quantize = QuantizationLayer(1)
         self.quantization = quantization
 
+    
     def forward(self, x):
         x = x.permute(0, 3, 1, 2)
         encode1 = self.encoder1(x)
@@ -193,10 +221,7 @@ class Encoder(nn.Module):
         out = self.fc(out)
         out = self.sig(out)
 
-        if self.quantization:
-            out = self.quantize(out)
-        else:
-            out = out
+        out = self.quantize(out, self.quantization, 'iconv')
         return out
 
 
@@ -206,7 +231,7 @@ class Decoder(nn.Module):
     def __init__(self, feedback_bits, quantization=True):
         super(Decoder, self).__init__()
         self.feedback_bits = feedback_bits
-        self.dequantize = DequantizationLayer(self.B)
+        self.dequantize = DequantizationLayer(1)
         self.fc = nn.Linear(int(feedback_bits / self.B), 768)
         decoder = OrderedDict([
             ("conv5x5_bn", ConvBN(2, 32, 5)),
@@ -219,12 +244,9 @@ class Decoder(nn.Module):
         self.sig = nn.Sigmoid()
         self.quantization = quantization 
 
+    
     def forward(self, x):
-        if self.quantization:
-            out = self.dequantize(x)
-        else:
-            out = x
-        out = out.contiguous().view(-1, int(self.feedback_bits / self.B))
+        out = self.dequantize(x, self.quantization, 'iconv', self.feedback_bits)
         
         out = self.fc(out)
         out = out.contiguous().view(-1, 2, 24, 16)
