@@ -119,7 +119,7 @@ if __name__ == "__main__":
         print('lr:%.4e'%optimizer.param_groups[0]['lr']) 
         # model training
         model.train()
-        if epoch < args.epochs/10:
+        if epoch < args.epochs/10 or best_loss>0.095:
             model = set_quantization(model, False)
         else:
             model = set_quantization(model, True)
