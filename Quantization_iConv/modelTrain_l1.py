@@ -48,13 +48,13 @@ if __name__ == "__main__":
     # Parameters for training
     parser = argparse.ArgumentParser()
     parser.add_argument("--continue_training", type=bool, default=False)
-    parser.add_argument("--batch_size", type=int, default=512)
+    parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--learning_rate", type=float, default=2e-3)
     parser.add_argument("--print_freq", type=int, default=100)
     parser.add_argument("--train_test_ratio", type=float, default=0.8)
     parser.add_argument("--feedback_bits", type=int, default=512)
-    parser.add_argument("--is_quantization", type=bool, default=True)
+    parser.add_argument("--is_quantization", type=bool, default=False)
     parser.add_argument("--data_load_address", type=str, default='./channelData')
     parser.add_argument("--model_save_address", type=str, default='./modelSubmit')
     parser.add_argument("--gpu_list", type=str, default='0')
@@ -78,11 +78,12 @@ if __name__ == "__main__":
     model = set_quantization(model, False)
 
     if args.continue_training:
-        model = set_quantization(model, True)
-        learning_rate = 5e-4
+        model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
+        model.decoder.load_state_dict(torch.load(args.model_save_address + '/decoder.pth.tar')['state_dict'])
     
     if len(args.gpu_list.split(',')) > 1:
-        model = torch.nn.DataParallel(model).cuda()  # model.module
+        model.encoder = torch.nn.DataParallel(model.encoder).cuda()  
+        model.decoder = torch.nn.DataParallel(model.decoder).cuda()  # model.module
     else:
         model = model.cuda()
 
@@ -113,12 +114,13 @@ if __name__ == "__main__":
         test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
     best_loss = 100
+    l1 = 0.01
     for epoch in range(args.epochs):
         print('========================')
         print('lr:%.4e'%optimizer.param_groups[0]['lr']) 
         # model training
         model.train()
-        if epoch < args.epochs/10 or best_loss>0.095 and not args.is_quantization:
+        if l1<1e-2 and epoch <50 and not args.is_quantization:
             model = set_quantization(model, False)
             print('Quantization has been turned off')
         else:
@@ -132,16 +134,19 @@ if __name__ == "__main__":
             input = input.cuda()
             channel_encode = model.encoder(input)
             output = model.decoder(channel_encode)
-            
-            loss = criterion(input, output) + l1_cuda(channel_encode)
+            NMSE_loss = criterion(input, output)
+            l1 = l1_cuda(channel_encode)
+            loss = NMSE_loss + 1e-5*epoch*l1
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
             
             if i % args.print_freq == 0:
                 print('Epoch: [{0}][{1}/{2}]\t'
-                    'Loss {loss:.4f}\t'.format(
-                    epoch, i, len(train_loader), loss=loss.item()))
+                    'NMSE_loss {loss:.7f}\t'
+                    'L1_loss {l1_loss:.7f}\t'.format(
+                    epoch, i, len(train_loader), loss=NMSE_loss.item(), l1_loss=l1))
+        
         model.eval()
         model = set_quantization(model, True)
 

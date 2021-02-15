@@ -14,7 +14,12 @@ from collections import OrderedDict
 # output = output.squeeze(1)
 # print(output.size())
 
-m = nn.Sigmoid()
-input = torch.randn(2)
+# m = nn.Sigmoid()
+# input = torch.randn(2)
+# output = m(input)
+# print(output)
+
+m = nn.BatchNorm1d(1, 100, affine=False)
+input = torch.randn(20, 1, 100)
 output = m(input)
-print(output)
+print(output.size())

@@ -73,10 +73,6 @@ class Dequantization(torch.autograd.Function):
         # return as many input gradients as there were arguments.
         # Gradients of non-Tensor arguments to forward must be None.
         # repeat the gradient of a Num for four time.
-        # b, c = grad_output.shape
-        # grad_output = grad_output.unsqueeze(2) / ctx.constant
-        # grad_bit = grad_output.repeat(b, c, ctx.constant) 
-        # return torch.reshape(grad_bit, (-1, c * ctx.constant)), None
 
         grad_bit = grad_output.repeat_interleave(ctx.constant, dim=1)
         return grad_bit, None
@@ -88,9 +84,9 @@ class QuantizationLayer(nn.Module):
         super(QuantizationLayer, self).__init__()
         self.B = B
         self.iconv1x4 = nn.ConvTranspose1d(1, 1, 4, 4)
-        self.sig = nn.Sigmoid()
-
-    
+        self.sig = nn.Tanh()
+        # self.batchnorm = nn.BatchNorm1d(1, 512)
+        
     def forward(self, x, quantization, method):
         if method == 'binary':
             if not quantization:
@@ -99,8 +95,10 @@ class QuantizationLayer(nn.Module):
                 out = Quantization.apply(x, self.B)
         elif method == 'iconv':
             out = x.unsqueeze(1)
+            # out = self.batchnorm(out)
             out = self.iconv1x4(out)
             out = self.sig(out)
+            
             out = out.squeeze(1)
             if not quantization:
                 out = out
@@ -191,6 +189,11 @@ class Encoder(nn.Module):
 
     def __init__(self, feedback_bits, quantization=True):
         super(Encoder, self).__init__()
+        self.feedback_bits = feedback_bits
+        self.fc = nn.Linear(768, int(feedback_bits / self.B))
+        self.sig = nn.Sigmoid()
+        self.quantize = QuantizationLayer(1)
+        self.quantization = quantization
         self.encoder1 = nn.Sequential(OrderedDict([
             ("conv3x3_bn", ConvBN(2, 32, 3)),
             ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
@@ -204,12 +207,6 @@ class Encoder(nn.Module):
             ("conv1x1_bn", ConvBN(32*2, 2, 1)),
             ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
         ]))
-
-        self.fc = nn.Linear(768, int(feedback_bits / self.B))
-        self.sig = nn.Sigmoid()
-        self.quantize = QuantizationLayer(1)
-        self.quantization = quantization
-
     
     def forward(self, x):
         x = x.permute(0, 3, 1, 2)
@@ -241,7 +238,7 @@ class Decoder(nn.Module):
         ])
         self.decoder_feature = nn.Sequential(decoder)
         self.out_cov = conv3x3(32, 2)
-        self.sig = nn.Sigmoid()
+        self.sig = nn.Tanh()
         self.quantization = quantization 
 
     
@@ -296,8 +293,8 @@ def NMSE_cuda(x, x_hat):
 
 def l1_cuda(channel_encode):
     loss = nn.L1Loss()
-    return loss(channel_encode, torch.zeros_like(channel_encode))
-
+    # return loss(channel_encode, torch.zeros_like(channel_encode))
+    return loss(channel_encode, torch.round(channel_encode))
 class NMSELoss(nn.Module):
     def __init__(self, reduction='sum'):
         super(NMSELoss, self).__init__()
