@@ -1,17 +1,15 @@
-#!/usr/bin/env python3
-"""
-CRNet
-用反卷积代替量化层的实现
-"""
+#!/usr/bin/env python
+# coding: utf-8
+
 import numpy as np
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from collections import OrderedDict
-# import torchsnooper
 
 NUM_FEEDBACK_BITS = 512 #pytorch版本一定要有这个参数
+
 
 # This part implement the quantization and dequantization operations.
 # The output of the encoder must be the bitstream.
@@ -33,7 +31,7 @@ def Num2Bit(Num, B):
 def Bit2Num(Bit, B):
     Bit_ = Bit.type(torch.float32)
     Bit_ = torch.reshape(Bit_, [-1, int(Bit_.shape[1] / B), B])
-    num = torch.zeros(Bit_[:, :, 0].shape).cuda()
+    num = torch.zeros(Bit_[:, :, 1].shape).cuda()
     for i in range(B):
         num = num + Bit_[:, :, i] * 2 ** (B - 1 - i)
     return num
@@ -54,7 +52,6 @@ class Quantization(torch.autograd.Function):
         # Gradients of constant arguments to forward must be None.
         # Gradient of a number is the sum of its four bits.
         b, _ = grad_output.shape
-        # grad_num = torch.sum(grad_output.reshape(b, -1, ctx.constant), dim=2) / ctx.constant
         grad_num = torch.sum(grad_output.reshape(b, -1, ctx.constant), dim=2)
         return grad_num, None
 
@@ -73,63 +70,32 @@ class Dequantization(torch.autograd.Function):
         # return as many input gradients as there were arguments.
         # Gradients of non-Tensor arguments to forward must be None.
         # repeat the gradient of a Num for four time.
-
+        #b, c = grad_output.shape
+        #grad_bit = grad_output.repeat(1, 1, ctx.constant) 
+        #return torch.reshape(grad_bit, (-1, c * ctx.constant)), None
         grad_bit = grad_output.repeat_interleave(ctx.constant, dim=1)
         return grad_bit, None
 
 
 class QuantizationLayer(nn.Module):
 
-    def __init__(self, B=4):
+    def __init__(self, B):
         super(QuantizationLayer, self).__init__()
         self.B = B
-        self.iconv1x4 = nn.ConvTranspose1d(1, 1, 4, 4)
-        self.sig = nn.Tanh()
-        # self.batchnorm = nn.BatchNorm1d(1, 512)
-        
-    def forward(self, x, quantization, method):
-        if method == 'binary':
-            if not quantization:
-                out = x
-            else:
-                out = Quantization.apply(x, self.B)
-        elif method == 'iconv':
-            out = x.unsqueeze(1)
-            # out = self.batchnorm(out)
-            out = self.iconv1x4(out)
-            out = self.sig(out)
-            
-            out = out.squeeze(1)
-            if not quantization:
-                out = out
-            else:
-                out = Quantization.apply(out, 1)
+
+    def forward(self, x):
+        out = Quantization.apply(x, self.B)
         return out
+
 
 class DequantizationLayer(nn.Module):
 
     def __init__(self, B):
         super(DequantizationLayer, self).__init__()
         self.B = B
-        self.conv4x1 = nn.Conv1d(1, 1, 4, stride=4)
 
-    # @torchsnooper.snoop()
-    def forward(self, x, quantization, method, feedback_bits):
-        if method == 'binary':
-            if not quantization:
-                out = x
-            else:
-                out = Dequantization.apply(x, self.B)
-            out = out.contiguous().view(-1, int(feedback_bits / self.B))
-        elif method == 'iconv':
-            if not quantization:
-                out = x
-            else:
-                out = Dequantization.apply(x, 1)
-            out = out.contiguous().view(-1, int(feedback_bits / self.B))
-            out = out.unsqueeze(1)
-            out = self.conv4x1(out)
-            out = out.squeeze(1)
+    def forward(self, x):
+        out = Dequantization.apply(x, self.B)
         return out
 
 
@@ -156,20 +122,20 @@ class CRBlock(nn.Module):
     def __init__(self):
         super(CRBlock, self).__init__()
         self.path1 = nn.Sequential(OrderedDict([
-            ('conv3x3', ConvBN(32, 32, 3)),
-            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv1x9', ConvBN(32, 32, [1, 9])),
-            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv9x1', ConvBN(32, 32, [9, 1])),
+            ('conv3x3', ConvBN(24, 24, 3)),
+            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ('conv1x9', ConvBN(24, 24, [1, 9])),
+            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ('conv9x1', ConvBN(24, 24, [9, 1])),
         ]))
         self.path2 = nn.Sequential(OrderedDict([
-            ('conv1x5', ConvBN(32, 32, [1, 5])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv5x1', ConvBN(32, 32, [5, 1])),
+            ('conv1x5', ConvBN(24, 24, [1, 5])),
+            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ('conv5x1', ConvBN(24, 24, [5, 1])),
         ]))
-        self.conv1x1 = ConvBN(32 * 2, 32, 1)
+        self.conv1x1 = ConvBN(24 * 2, 24, 1)
         self.identity = nn.Identity()
-        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=True)
+        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=False)
 
     def forward(self, x):
         identity = self.identity(x)
@@ -189,36 +155,38 @@ class Encoder(nn.Module):
 
     def __init__(self, feedback_bits, quantization=True):
         super(Encoder, self).__init__()
-        self.feedback_bits = feedback_bits
+        self.encoder1 = nn.Sequential(OrderedDict([
+            ("conv7x7_bn", ConvBN(2, 24, 7)),
+            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ("conv1x9_bn", ConvBN(24, 24, [1, 9])),
+            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ("conv9x1_bn", ConvBN(24, 24, [9, 1])),
+        ]))
+        self.encoder2 = ConvBN(2,24, 7)
+        self.encoder_conv = nn.Sequential(OrderedDict([
+            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ("conv1x1_bn", ConvBN(24*2, 2, 1)),
+            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+        ]))
+
         self.fc = nn.Linear(768, int(feedback_bits / self.B))
         self.sig = nn.Sigmoid()
-        self.quantize = QuantizationLayer(1)
-        self.quantization = quantization
-        self.encoder1 = nn.Sequential(OrderedDict([
-            ("conv3x3_bn", ConvBN(2, 32, 3)),
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ("conv1x9_bn", ConvBN(32, 32, [1, 9])),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ("conv9x1_bn", ConvBN(32, 32, [9, 1])),
-        ]))
-        self.encoder2 = ConvBN(2, 32, 3)
-        self.encoder_conv = nn.Sequential(OrderedDict([
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ("conv1x1_bn", ConvBN(32*2, 2, 1)),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-        ]))
-    
+        self.quantize = QuantizationLayer(self.B)
+        self.quantization = quantization 
+
     def forward(self, x):
-        x = x.permute(0, 3, 1, 2)
+        x = x.permute(0,3,1,2)
         encode1 = self.encoder1(x)
         encode2 = self.encoder2(x)
         out = torch.cat((encode1, encode2), dim=1)
         out = self.encoder_conv(out)
-        out = out.contiguous().view(-1, 768)
+        out = out.reshape(-1, 768)
         out = self.fc(out)
         out = self.sig(out)
-
-        out = self.quantize(out, self.quantization, 'iconv')
+        if self.quantization:
+            out = self.quantize(out)
+        else:
+            out = out
         return out
 
 
@@ -228,34 +196,35 @@ class Decoder(nn.Module):
     def __init__(self, feedback_bits, quantization=True):
         super(Decoder, self).__init__()
         self.feedback_bits = feedback_bits
-        self.dequantize = DequantizationLayer(1)
+        self.dequantize = DequantizationLayer(self.B)
         self.fc = nn.Linear(int(feedback_bits / self.B), 768)
         decoder = OrderedDict([
-            ("conv5x5_bn", ConvBN(2, 32, 5)),
-            ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ("conv5x5_bn", ConvBN(2, 24, 5)),
+            ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ("CRBlock1", CRBlock()),
             ("CRBlock2", CRBlock()),
         ])
         self.decoder_feature = nn.Sequential(decoder)
-        self.out_cov = conv3x3(32, 2)
-        self.sig = nn.Tanh()
-        self.quantization = quantization 
+        self.out_cov = conv3x3(24, 2)
+        self.sig = nn.Sigmoid()
+        self.quantization = quantization        
 
-    
     def forward(self, x):
-        out = self.dequantize(x, self.quantization, 'iconv', self.feedback_bits)
-        
+        if self.quantization:
+            out = self.dequantize(x)
+        else:
+            out = x
+        out = out.view(-1, int(self.feedback_bits / self.B))
         out = self.fc(out)
-        out = out.contiguous().view(-1, 2, 24, 16)
+        out = out.reshape(-1, 2, 16, 24)
         out = self.decoder_feature(out)
         out = self.out_cov(out)
         out = self.sig(out)
-        out = out.permute(0, 2, 3, 1)
+        out = out.permute(0, 3, 2, 1)
         return out
 
 
-# Note: Do not modify following class and keep it in your submission.
-# feedback_bits is 128 by default.
+
 class AutoEncoder(nn.Module):
 
     def __init__(self, feedback_bits):
@@ -282,19 +251,15 @@ def NMSE(x, x_hat):
     return nmse
 
 def NMSE_cuda(x, x_hat):
-    x_real = x[:, :, :, 0].view(len(x),-1) - 0.5
-    x_imag = x[:, :, :, 1].view(len(x),-1) - 0.5
+    x_real = x[:, :, :, 0].reshape(len(x),-1) - 0.5
+    x_imag = x[:, :, :, 1].reshape(len(x),-1) - 0.5
     x_hat_real = x_hat[:, :, :, 0].view(len(x_hat), -1) - 0.5
     x_hat_imag = x_hat[:, :, :, 1].view(len(x_hat), -1) - 0.5
     power = torch.sum(x_real**2 + x_imag**2, axis=1)
     mse = torch.sum((x_real-x_hat_real)**2 + (x_imag-x_hat_imag)**2, axis=1)
     nmse = mse/power
     return nmse
-
-def l1_cuda(channel_encode):
-    loss = nn.L1Loss()
-    # return loss(channel_encode, torch.zeros_like(channel_encode))
-    return loss(channel_encode, torch.round(channel_encode))
+    
 class NMSELoss(nn.Module):
     def __init__(self, reduction='sum'):
         super(NMSELoss, self).__init__()

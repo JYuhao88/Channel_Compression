@@ -8,6 +8,8 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 from collections import OrderedDict
 
+NUM_FEEDBACK_BITS = 512 #pytorch版本一定要有这个参数
+
 
 # This part implement the quantization and dequantization operations.
 # The output of the encoder must be the bitstream.
@@ -121,19 +123,19 @@ class CRBlock(nn.Module):
         super(CRBlock, self).__init__()
         self.path1 = nn.Sequential(OrderedDict([
             ('conv3x3', ConvBN(24, 24, 3)),
-            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ('conv1x9', ConvBN(24, 24, [1, 9])),
-            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ('conv9x1', ConvBN(24, 24, [9, 1])),
         ]))
         self.path2 = nn.Sequential(OrderedDict([
             ('conv1x5', ConvBN(24, 24, [1, 5])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ('conv5x1', ConvBN(24, 24, [5, 1])),
         ]))
         self.conv1x1 = ConvBN(24 * 2, 24, 1)
         self.identity = nn.Identity()
-        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=True)
+        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=False)
 
     def forward(self, x):
         identity = self.identity(x)
@@ -155,16 +157,16 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.encoder1 = nn.Sequential(OrderedDict([
             ("conv3x3_bn", ConvBN(2, 24, 3)),
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ("conv1x9_bn", ConvBN(24, 24, [1, 9])),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ("conv9x1_bn", ConvBN(24, 24, [9, 1])),
         ]))
         self.encoder2 = ConvBN(2,24, 3)
         self.encoder_conv = nn.Sequential(OrderedDict([
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ("conv1x1_bn", ConvBN(24*2, 2, 1)),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
         ]))
 
         self.fc = nn.Linear(768, int(feedback_bits / self.B))
@@ -198,7 +200,7 @@ class Decoder(nn.Module):
         self.fc = nn.Linear(int(feedback_bits / self.B), 768)
         decoder = OrderedDict([
             ("conv5x5_bn", ConvBN(2, 24, 5)),
-            ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
+            ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ("CRBlock1", CRBlock()),
             ("CRBlock2", CRBlock()),
         ])
