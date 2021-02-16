@@ -78,8 +78,8 @@ if __name__ == "__main__":
     model = set_quantization(model, False)
 
     if args.continue_training:
-        model = set_quantization(model, True)
-        learning_rate = 5e-4
+        model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
+        model.decoder.load_state_dict(torch.load(args.model_save_address + '/decoder.pth.tar')['state_dict'])
     
     if len(args.gpu_list.split(',')) > 1:
         model = torch.nn.DataParallel(model).cuda()  # model.module
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             model = set_quantization(model, True)
             print('Quantization has been turned on')
         
-        if epoch == args.epochs//4 * 3:
+        if epoch == 12:
             optimizer.param_groups[0]['lr'] =  optimizer.param_groups[0]['lr'] * 0.25
         
         for i, input in enumerate(train_loader):
