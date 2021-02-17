@@ -125,8 +125,9 @@ if __name__ == "__main__":
             model = set_quantization(model, True)
             print('Quantization has been turned on')
         
-        if epoch == 12:
-            optimizer.param_groups[0]['lr'] =  optimizer.param_groups[0]['lr'] * 0.25
+        # if epoch == 12:
+        #     optimizer.param_groups[0]['lr'] =  optimizer.param_groups[0]['lr'] * 0.25
+        
         
         for i, input in enumerate(train_loader):
             input = input.cuda()
@@ -136,11 +137,13 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
+            scheduler.step()  # 更新学习率
             
             if i % args.print_freq == 0:
                 print('Epoch: [{0}][{1}/{2}]\t'
-                    'Loss {loss:.4f}\t'.format(
-                    epoch, i, len(train_loader), loss=loss.item()))
+                    'Loss {loss:.7f}\t'
+                    'lr: {lr:.7e}\t'.format(
+                    epoch, i, len(train_loader), loss=loss.item(), lr=optimizer.param_groups[0]['lr']))
         model.eval()
         model = set_quantization(model, True)
 

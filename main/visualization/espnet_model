@@ -1,0 +1,902 @@
+digraph {
+	graph [size="109.05,109.05"]
+	node [align=left fontsize=12 height=0.2 ranksep=0.1 shape=box style=filled]
+	2383797330568 [label=PermuteBackward fillcolor=darkolivegreen1]
+	2383797350792 -> 2383797330568
+	2383797350792 [label=SigmoidBackward]
+	2383797353032 -> 2383797350792
+	2383797353032 [label=MkldnnConvolutionBackward]
+	2383797350856 -> 2383797353032
+	2383797350856 [label=LeakyReluBackward1]
+	2383845496264 -> 2383797350856
+	2383845496264 [label=AddBackward0]
+	2383845496712 -> 2383845496264
+	2383845496712 [label=NativeBatchNormBackward]
+	2383845496584 -> 2383845496712
+	2383845496584 [label=MkldnnConvolutionBackward]
+	2383845498504 -> 2383845496584
+	2383845498504 [label=LeakyReluBackward1]
+	2383845495496 -> 2383845498504
+	2383845495496 [label=CatBackward]
+	2383845498184 -> 2383845495496
+	2383845498184 [label=NativeBatchNormBackward]
+	2383845495944 -> 2383845498184
+	2383845495944 [label=MkldnnConvolutionBackward]
+	2383845497288 -> 2383845495944
+	2383845497288 [label=LeakyReluBackward0]
+	2383845496648 -> 2383845497288
+	2383845496648 [label=NativeBatchNormBackward]
+	2383845495624 -> 2383845496648
+	2383845495624 [label=MkldnnConvolutionBackward]
+	2383845496072 -> 2383845495624
+	2383845496072 [label=LeakyReluBackward0]
+	2383845495688 -> 2383845496072
+	2383845495688 [label=NativeBatchNormBackward]
+	2383845497032 -> 2383845495688
+	2383845497032 [label=MkldnnConvolutionBackward]
+	2383845498440 -> 2383845497032
+	2383845498440 [label=LeakyReluBackward1]
+	2383797373832 -> 2383845498440
+	2383797373832 [label=AddBackward0]
+	2383797373000 -> 2383797373832
+	2383797373000 [label=NativeBatchNormBackward]
+	2383797372616 -> 2383797373000
+	2383797372616 [label=MkldnnConvolutionBackward]
+	2383797373960 -> 2383797372616
+	2383797373960 [label=LeakyReluBackward1]
+	2383797374408 -> 2383797373960
+	2383797374408 [label=CatBackward]
+	2383797373640 -> 2383797374408
+	2383797373640 [label=NativeBatchNormBackward]
+	2383797374344 -> 2383797373640
+	2383797374344 [label=MkldnnConvolutionBackward]
+	2383797370952 -> 2383797374344
+	2383797370952 [label=LeakyReluBackward0]
+	2383797372104 -> 2383797370952
+	2383797372104 [label=NativeBatchNormBackward]
+	2383797372296 -> 2383797372104
+	2383797372296 [label=MkldnnConvolutionBackward]
+	2383797362056 -> 2383797372296
+	2383797362056 [label=LeakyReluBackward0]
+	2383797360520 -> 2383797362056
+	2383797360520 [label=NativeBatchNormBackward]
+	2383797358984 -> 2383797360520
+	2383797358984 [label=MkldnnConvolutionBackward]
+	2383797374536 -> 2383797358984
+	2383797374536 [label=LeakyReluBackward1]
+	2383797361544 -> 2383797374536
+	2383797361544 [label=AddBackward0]
+	2383797362312 -> 2383797361544
+	2383797362312 [label=NativeBatchNormBackward]
+	2383797362504 -> 2383797362312
+	2383797362504 [label=MkldnnConvolutionBackward]
+	2383797361416 -> 2383797362504
+	2383797361416 [label=LeakyReluBackward1]
+	2383797359240 -> 2383797361416
+	2383797359240 [label=CatBackward]
+	2383797358792 -> 2383797359240
+	2383797358792 [label=NativeBatchNormBackward]
+	2383797360136 -> 2383797358792
+	2383797360136 [label=MkldnnConvolutionBackward]
+	2383797359816 -> 2383797360136
+	2383797359816 [label=LeakyReluBackward0]
+	2383797358664 -> 2383797359816
+	2383797358664 [label=NativeBatchNormBackward]
+	2383797482056 -> 2383797358664
+	2383797482056 [label=MkldnnConvolutionBackward]
+	2383797481736 -> 2383797482056
+	2383797481736 [label=LeakyReluBackward0]
+	2383797484104 -> 2383797481736
+	2383797484104 [label=NativeBatchNormBackward]
+	2383797485128 -> 2383797484104
+	2383797485128 [label=MkldnnConvolutionBackward]
+	2383797359304 -> 2383797485128
+	2383797359304 [label=LeakyReluBackward1]
+	2383797484680 -> 2383797359304
+	2383797484680 [label=AddBackward0]
+	2383797481992 -> 2383797484680
+	2383797481992 [label=NativeBatchNormBackward]
+	2383797485192 -> 2383797481992
+	2383797485192 [label=MkldnnConvolutionBackward]
+	2383797483208 -> 2383797485192
+	2383797483208 [label=LeakyReluBackward1]
+	2383797485064 -> 2383797483208
+	2383797485064 [label=CatBackward]
+	2383797483656 -> 2383797485064
+	2383797483656 [label=NativeBatchNormBackward]
+	2383797485256 -> 2383797483656
+	2383797485256 [label=MkldnnConvolutionBackward]
+	2383797484936 -> 2383797485256
+	2383797484936 [label=LeakyReluBackward0]
+	2384156733384 -> 2383797484936
+	2384156733384 [label=NativeBatchNormBackward]
+	2384163723976 -> 2384156733384
+	2384163723976 [label=MkldnnConvolutionBackward]
+	2384163725256 -> 2384163723976
+	2384163725256 [label=LeakyReluBackward0]
+	2383797477256 -> 2384163725256
+	2383797477256 [label=NativeBatchNormBackward]
+	2383797474056 -> 2383797477256
+	2383797474056 [label=MkldnnConvolutionBackward]
+	2383797484488 -> 2383797474056
+	2383797484488 [label=LeakyReluBackward1]
+	2383797473800 -> 2383797484488
+	2383797473800 [label=NativeBatchNormBackward]
+	2383797475592 -> 2383797473800
+	2383797475592 [label=MkldnnConvolutionBackward]
+	2383797475848 -> 2383797475592
+	2383797475848 [label=ViewBackward]
+	2383797475976 -> 2383797475848
+	2383797475976 [label=AddmmBackward]
+	2383797473608 -> 2383797475976
+	2383797473608 [label="decoder.fc.bias
+ (768)" fillcolor=lightblue]
+	2383797477192 -> 2383797475976
+	2383797477192 [label=ViewBackward]
+	2383845756264 -> 2383797477192
+	2383845756264 [label=DequantizationBackward]
+	2383845756040 -> 2383845756264
+	2383845756040 [label=QuantizationBackward]
+	2383797503432 -> 2383845756040
+	2383797503432 [label=SigmoidBackward]
+	2383797502472 -> 2383797503432
+	2383797502472 [label=AddmmBackward]
+	2383797504776 -> 2383797502472
+	2383797504776 [label="encoder.fc.bias
+ (128)" fillcolor=lightblue]
+	2383797504136 -> 2383797502472
+	2383797504136 [label=ViewBackward]
+	2383797505736 -> 2383797504136
+	2383797505736 [label=LeakyReluBackward1]
+	2383797505096 -> 2383797505736
+	2383797505096 [label=NativeBatchNormBackward]
+	2383797504648 -> 2383797505096
+	2383797504648 [label=MkldnnConvolutionBackward]
+	2383797504968 -> 2383797504648
+	2383797504968 [label=LeakyReluBackward1]
+	2383797505224 -> 2383797504968
+	2383797505224 [label=AddBackward0]
+	2383797504520 -> 2383797505224
+	2383797504520 [label=AddBackward0]
+	2383797504200 -> 2383797504520
+	2383797504200 [label=AddBackward0]
+	2383797503176 -> 2383797504200
+	2383797503176 [label=AddBackward0]
+	2383797502280 -> 2383797503176
+	2383797502280 [label=LeakyReluBackward1]
+	2383797503048 -> 2383797502280
+	2383797503048 [label=NativeBatchNormBackward]
+	2383797502664 -> 2383797503048
+	2383797502664 [label=MkldnnConvolutionBackward]
+	2383797502536 -> 2383797502664
+	2383797502536 [label="encoder.encoder.conv3x3_bn.conv.weight
+ (32, 2, 3, 3)" fillcolor=lightblue]
+	2383797502792 -> 2383797503048
+	2383797502792 [label="encoder.encoder.conv3x3_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797502984 -> 2383797503048
+	2383797502984 [label="encoder.encoder.conv3x3_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797502600 -> 2383797503176
+	2383797502600 [label=LeakyReluBackward0]
+	2383797503304 -> 2383797502600
+	2383797503304 [label=NativeBatchNormBackward]
+	2383797502856 -> 2383797503304
+	2383797502856 [label=MkldnnConvolutionBackward]
+	2383797503816 -> 2383797502856
+	2383797503816 [label=LeakyReluBackward0]
+	2383797503688 -> 2383797503816
+	2383797503688 [label=CatBackward]
+	2383797503368 -> 2383797503688
+	2383797503368 [label=NativeBatchNormBackward]
+	2384156783176 -> 2383797503368
+	2384156783176 [label=MkldnnConvolutionBackward]
+	2384156786056 -> 2384156783176
+	2384156786056 [label=LeakyReluBackward0]
+	2384156782920 -> 2384156786056
+	2384156782920 [label=NativeBatchNormBackward]
+	2384156784008 -> 2384156782920
+	2384156784008 [label=MkldnnConvolutionBackward]
+	2384163199816 -> 2384156784008
+	2384163199816 [label=LeakyReluBackward0]
+	2383797345736 -> 2384163199816
+	2383797345736 [label=NativeBatchNormBackward]
+	2383797343048 -> 2383797345736
+	2383797343048 [label=MkldnnConvolutionBackward]
+	2383797502280 -> 2383797343048
+	2384162226120 -> 2383797343048
+	2384162226120 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.0.conv.weight
+ (32, 32, 1, 1)" fillcolor=lightblue]
+	2383797346248 -> 2383797345736
+	2383797346248 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.0.bn.weight
+ (32)" fillcolor=lightblue]
+	2384149300360 -> 2383797345736
+	2384149300360 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.0.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797343944 -> 2384156784008
+	2383797343944 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder1.conv1x9_bn.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2384156783048 -> 2384156782920
+	2384156783048 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder1.conv1x9_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2384156785544 -> 2384156782920
+	2384156785544 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder1.conv1x9_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2384156783688 -> 2384156783176
+	2384156783688 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder1.conv9x1_bn.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2384156784456 -> 2383797503368
+	2384156784456 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder1.conv9x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2384156783240 -> 2383797503368
+	2384156783240 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder1.conv9x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797505800 -> 2383797503688
+	2383797505800 [label=NativeBatchNormBackward]
+	2384156784200 -> 2383797505800
+	2384156784200 [label=MkldnnConvolutionBackward]
+	2384163199816 -> 2384156784200
+	2383797342664 -> 2384156784200
+	2383797342664 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder2.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2384156786440 -> 2383797505800
+	2384156786440 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder2.bn.weight
+ (32)" fillcolor=lightblue]
+	2384163197512 -> 2383797505800
+	2384163197512 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder2.bn.bias
+ (32)" fillcolor=lightblue]
+	2384156786568 -> 2383797503688
+	2384156786568 [label=NativeBatchNormBackward]
+	2383797345544 -> 2384156786568
+	2383797345544 [label=MkldnnConvolutionBackward]
+	2384162224776 -> 2383797345544
+	2384162224776 [label=LeakyReluBackward0]
+	2384162224584 -> 2384162224776
+	2384162224584 [label=NativeBatchNormBackward]
+	2384162223560 -> 2384162224584
+	2384162223560 [label=MkldnnConvolutionBackward]
+	2384163199816 -> 2384162223560
+	2384162223304 -> 2384162223560
+	2384162223304 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder3.conv1x5_bn.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2384162225864 -> 2384162224584
+	2384162225864 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder3.conv1x5_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2384162226056 -> 2384162224584
+	2384162226056 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder3.conv1x5_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2384162225288 -> 2383797345544
+	2384162225288 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder3.conv5x1_bn.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2385330685064 -> 2384156786568
+	2385330685064 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder3.conv5x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2384156785992 -> 2384156786568
+	2384156785992 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.2.encoder3.conv5x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797502408 -> 2383797502856
+	2383797502408 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.4.conv.weight
+ (32, 96, 1, 1)" fillcolor=lightblue]
+	2383797504072 -> 2383797503304
+	2383797504072 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.4.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797504712 -> 2383797503304
+	2383797504712 [label="encoder.encoder.ResBlock_CRNET_1.module_list.0.4.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797503752 -> 2383797504200
+	2383797503752 [label=LeakyReluBackward0]
+	2383797503560 -> 2383797503752
+	2383797503560 [label=NativeBatchNormBackward]
+	2383797502344 -> 2383797503560
+	2383797502344 [label=MkldnnConvolutionBackward]
+	2384162225736 -> 2383797502344
+	2384162225736 [label=LeakyReluBackward0]
+	2384162225096 -> 2384162225736
+	2384162225096 [label=CatBackward]
+	2385355257224 -> 2384162225096
+	2385355257224 [label=NativeBatchNormBackward]
+	2385355258760 -> 2385355257224
+	2385355258760 [label=MkldnnConvolutionBackward]
+	2385355258376 -> 2385355258760
+	2385355258376 [label=LeakyReluBackward0]
+	2385355257544 -> 2385355258376
+	2385355257544 [label=NativeBatchNormBackward]
+	2385355259336 -> 2385355257544
+	2385355259336 [label=MkldnnConvolutionBackward]
+	2385355257864 -> 2385355259336
+	2385355257864 [label=LeakyReluBackward0]
+	2385355256520 -> 2385355257864
+	2385355256520 [label=NativeBatchNormBackward]
+	2385355258952 -> 2385355256520
+	2385355258952 [label=MkldnnConvolutionBackward]
+	2383797503176 -> 2385355258952
+	2383845352584 -> 2385355258952
+	2383845352584 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.0.conv.weight
+ (32, 32, 1, 1)" fillcolor=lightblue]
+	2385355259656 -> 2385355256520
+	2385355259656 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.0.bn.weight
+ (32)" fillcolor=lightblue]
+	2385355256328 -> 2385355256520
+	2385355256328 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.0.bn.bias
+ (32)" fillcolor=lightblue]
+	2385355257416 -> 2385355259336
+	2385355257416 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder1.conv1x9_bn.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2385355259848 -> 2385355257544
+	2385355259848 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder1.conv1x9_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2385355256904 -> 2385355257544
+	2385355256904 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder1.conv1x9_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2385355258184 -> 2385355258760
+	2385355258184 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder1.conv9x1_bn.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2385355259144 -> 2385355257224
+	2385355259144 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder1.conv9x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2385355257672 -> 2385355257224
+	2385355257672 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder1.conv9x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2385355258312 -> 2384162225096
+	2385355258312 [label=NativeBatchNormBackward]
+	2385355257608 -> 2385355258312
+	2385355257608 [label=MkldnnConvolutionBackward]
+	2385355257864 -> 2385355257608
+	2385355259528 -> 2385355257608
+	2385355259528 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder2.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2385355259080 -> 2385355258312
+	2385355259080 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder2.bn.weight
+ (32)" fillcolor=lightblue]
+	2385355259720 -> 2385355258312
+	2385355259720 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder2.bn.bias
+ (32)" fillcolor=lightblue]
+	2385355257736 -> 2384162225096
+	2385355257736 [label=NativeBatchNormBackward]
+	2383797503240 -> 2385355257736
+	2383797503240 [label=MkldnnConvolutionBackward]
+	2383845354056 -> 2383797503240
+	2383845354056 [label=LeakyReluBackward0]
+	2383845354376 -> 2383845354056
+	2383845354376 [label=NativeBatchNormBackward]
+	2383845343816 -> 2383845354376
+	2383845343816 [label=MkldnnConvolutionBackward]
+	2385355257864 -> 2383845343816
+	2383845345608 -> 2383845343816
+	2383845345608 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder3.conv1x5_bn.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383845344136 -> 2383845354376
+	2383845344136 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder3.conv1x5_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845344648 -> 2383845354376
+	2383845344648 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder3.conv1x5_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845354632 -> 2383797503240
+	2383845354632 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder3.conv5x1_bn.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2385355259464 -> 2385355257736
+	2385355259464 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder3.conv5x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2385355258504 -> 2385355257736
+	2385355258504 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.2.encoder3.conv5x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2384162225544 -> 2383797502344
+	2384162225544 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.4.conv.weight
+ (32, 96, 1, 1)" fillcolor=lightblue]
+	2383797505032 -> 2383797503560
+	2383797505032 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.4.bn.weight
+ (32)" fillcolor=lightblue]
+	2384156784840 -> 2383797503560
+	2384156784840 [label="encoder.encoder.ResBlock_CRNET_2.module_list.0.4.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797504328 -> 2383797504520
+	2383797504328 [label=LeakyReluBackward0]
+	2383797503880 -> 2383797504328
+	2383797503880 [label=NativeBatchNormBackward]
+	2384162224520 -> 2383797503880
+	2384162224520 [label=MkldnnConvolutionBackward]
+	2385355255880 -> 2384162224520
+	2385355255880 [label=LeakyReluBackward0]
+	2383845346568 -> 2385355255880
+	2383845346568 [label=CatBackward]
+	2383845345928 -> 2383845346568
+	2383845345928 [label=NativeBatchNormBackward]
+	2383845344456 -> 2383845345928
+	2383845344456 [label=MkldnnConvolutionBackward]
+	2383845346760 -> 2383845344456
+	2383845346760 [label=LeakyReluBackward0]
+	2383797563720 -> 2383845346760
+	2383797563720 [label=NativeBatchNormBackward]
+	2383797564680 -> 2383797563720
+	2383797564680 [label=MkldnnConvolutionBackward]
+	2383797563464 -> 2383797564680
+	2383797563464 [label=LeakyReluBackward0]
+	2383797563592 -> 2383797563464
+	2383797563592 [label=NativeBatchNormBackward]
+	2383797564104 -> 2383797563592
+	2383797564104 [label=MkldnnConvolutionBackward]
+	2383797504200 -> 2383797564104
+	2383797565640 -> 2383797564104
+	2383797565640 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.0.conv.weight
+ (32, 32, 1, 1)" fillcolor=lightblue]
+	2383797564936 -> 2383797563592
+	2383797564936 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.0.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797566664 -> 2383797563592
+	2383797566664 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.0.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797565320 -> 2383797564680
+	2383797565320 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder1.conv1x9_bn.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2383797565896 -> 2383797563720
+	2383797565896 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder1.conv1x9_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797566536 -> 2383797563720
+	2383797566536 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder1.conv1x9_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845347208 -> 2383845344456
+	2383845347208 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder1.conv9x1_bn.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2383845344968 -> 2383845345928
+	2383845344968 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder1.conv9x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845345416 -> 2383845345928
+	2383845345416 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder1.conv9x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845347016 -> 2383845346568
+	2383845347016 [label=NativeBatchNormBackward]
+	2383845346056 -> 2383845347016
+	2383845346056 [label=MkldnnConvolutionBackward]
+	2383797563464 -> 2383845346056
+	2383797566920 -> 2383845346056
+	2383797566920 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder2.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2383845347272 -> 2383845347016
+	2383845347272 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder2.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845354248 -> 2383845347016
+	2383845354248 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder2.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845343368 -> 2383845346568
+	2383845343368 [label=NativeBatchNormBackward]
+	2383797563848 -> 2383845343368
+	2383797563848 [label=MkldnnConvolutionBackward]
+	2383797567176 -> 2383797563848
+	2383797567176 [label=LeakyReluBackward0]
+	2383797635016 -> 2383797567176
+	2383797635016 [label=NativeBatchNormBackward]
+	2383797636104 -> 2383797635016
+	2383797636104 [label=MkldnnConvolutionBackward]
+	2383797563464 -> 2383797636104
+	2383797633288 -> 2383797636104
+	2383797633288 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder3.conv1x5_bn.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383797637000 -> 2383797635016
+	2383797637000 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder3.conv1x5_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797633160 -> 2383797635016
+	2383797633160 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder3.conv1x5_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797635144 -> 2383797563848
+	2383797635144 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder3.conv5x1_bn.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2383797564296 -> 2383845343368
+	2383797564296 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder3.conv5x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797566792 -> 2383845343368
+	2383797566792 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.2.encoder3.conv5x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2385355258120 -> 2384162224520
+	2385355258120 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.4.conv.weight
+ (32, 96, 1, 1)" fillcolor=lightblue]
+	2384162222664 -> 2383797503880
+	2384162222664 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.4.bn.weight
+ (32)" fillcolor=lightblue]
+	2384162225992 -> 2383797503880
+	2384162225992 [label="encoder.encoder.ResBlock_CRNET_3.module_list.0.4.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797504840 -> 2383797505224
+	2383797504840 [label=LeakyReluBackward0]
+	2383797505992 -> 2383797504840
+	2383797505992 [label=NativeBatchNormBackward]
+	2383845355208 -> 2383797505992
+	2383845355208 [label=MkldnnConvolutionBackward]
+	2383797564808 -> 2383845355208
+	2383797564808 [label=LeakyReluBackward0]
+	2383797633352 -> 2383797564808
+	2383797633352 [label=CatBackward]
+	2383797635464 -> 2383797633352
+	2383797635464 [label=NativeBatchNormBackward]
+	2383797633480 -> 2383797635464
+	2383797633480 [label=MkldnnConvolutionBackward]
+	2383797626440 -> 2383797633480
+	2383797626440 [label=LeakyReluBackward0]
+	2383797624968 -> 2383797626440
+	2383797624968 [label=NativeBatchNormBackward]
+	2383797627976 -> 2383797624968
+	2383797627976 [label=MkldnnConvolutionBackward]
+	2383797628232 -> 2383797627976
+	2383797628232 [label=LeakyReluBackward0]
+	2383797626888 -> 2383797628232
+	2383797626888 [label=NativeBatchNormBackward]
+	2383797580168 -> 2383797626888
+	2383797580168 [label=MkldnnConvolutionBackward]
+	2383797504520 -> 2383797580168
+	2383797583688 -> 2383797580168
+	2383797583688 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.0.conv.weight
+ (32, 32, 1, 1)" fillcolor=lightblue]
+	2383797581128 -> 2383797626888
+	2383797581128 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.0.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797581448 -> 2383797626888
+	2383797581448 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.0.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797628424 -> 2383797627976
+	2383797628424 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder1.conv1x9_bn.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2383797624904 -> 2383797624968
+	2383797624904 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder1.conv1x9_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797626824 -> 2383797624968
+	2383797626824 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder1.conv1x9_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797627080 -> 2383797633480
+	2383797627080 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder1.conv9x1_bn.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2383797634376 -> 2383797635464
+	2383797634376 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder1.conv9x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797636296 -> 2383797635464
+	2383797636296 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder1.conv9x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797634120 -> 2383797633352
+	2383797634120 [label=NativeBatchNormBackward]
+	2383797625928 -> 2383797634120
+	2383797625928 [label=MkldnnConvolutionBackward]
+	2383797628232 -> 2383797625928
+	2383797626248 -> 2383797625928
+	2383797626248 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder2.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2383797628168 -> 2383797634120
+	2383797628168 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder2.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797627464 -> 2383797634120
+	2383797627464 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder2.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797635592 -> 2383797633352
+	2383797635592 [label=NativeBatchNormBackward]
+	2383845344904 -> 2383797635592
+	2383845344904 [label=MkldnnConvolutionBackward]
+	2383797580488 -> 2383845344904
+	2383797580488 [label=LeakyReluBackward0]
+	2383797583304 -> 2383797580488
+	2383797583304 [label=NativeBatchNormBackward]
+	2383797679944 -> 2383797583304
+	2383797679944 [label=MkldnnConvolutionBackward]
+	2383797628232 -> 2383797679944
+	2383797680648 -> 2383797679944
+	2383797680648 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder3.conv1x5_bn.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383797679240 -> 2383797583304
+	2383797679240 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder3.conv1x5_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797679688 -> 2383797583304
+	2383797679688 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder3.conv1x5_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797581896 -> 2383845344904
+	2383797581896 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder3.conv5x1_bn.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2383797628040 -> 2383797635592
+	2383797628040 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder3.conv5x1_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797626568 -> 2383797635592
+	2383797626568 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.2.encoder3.conv5x1_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797635720 -> 2383845355208
+	2383797635720 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.4.conv.weight
+ (32, 96, 1, 1)" fillcolor=lightblue]
+	2383845344392 -> 2383797505992
+	2383845344392 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.4.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845344072 -> 2383797505992
+	2383845344072 [label="encoder.encoder.ResBlock_CRNET_4.module_list.0.4.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797505288 -> 2383797504648
+	2383797505288 [label="encoder.encoder_conv.conv1x1_bn.conv.weight
+ (2, 32, 1, 1)" fillcolor=lightblue]
+	2383797505160 -> 2383797505096
+	2383797505160 [label="encoder.encoder_conv.conv1x1_bn.bn.weight
+ (2)" fillcolor=lightblue]
+	2383797505544 -> 2383797505096
+	2383797505544 [label="encoder.encoder_conv.conv1x1_bn.bn.bias
+ (2)" fillcolor=lightblue]
+	2383797504904 -> 2383797502472
+	2383797504904 [label=TBackward]
+	2383797505352 -> 2383797504904
+	2383797505352 [label="encoder.fc.weight
+ (128, 768)" fillcolor=lightblue]
+	2383797475656 -> 2383797475976
+	2383797475656 [label=TBackward]
+	2384156309768 -> 2383797475656
+	2384156309768 [label="decoder.fc.weight
+ (768, 128)" fillcolor=lightblue]
+	2383797477128 -> 2383797475592
+	2383797477128 [label="decoder.decoder_feature.conv5x5_bn.conv.weight
+ (32, 2, 5, 5)" fillcolor=lightblue]
+	2383797477320 -> 2383797473800
+	2383797477320 [label="decoder.decoder_feature.conv5x5_bn.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797476424 -> 2383797473800
+	2383797476424 [label="decoder.decoder_feature.conv5x5_bn.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797475144 -> 2383797474056
+	2383797475144 [label="decoder.decoder_feature.CRBlock1.path1.conv3x3.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2383797475272 -> 2383797477256
+	2383797475272 [label="decoder.decoder_feature.CRBlock1.path1.conv3x3.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797474760 -> 2383797477256
+	2383797474760 [label="decoder.decoder_feature.CRBlock1.path1.conv3x3.bn.bias
+ (32)" fillcolor=lightblue]
+	2384163722376 -> 2384163723976
+	2384163722376 [label="decoder.decoder_feature.CRBlock1.path1.conv1x9.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2384163723592 -> 2384156733384
+	2384163723592 [label="decoder.decoder_feature.CRBlock1.path1.conv1x9.bn.weight
+ (32)" fillcolor=lightblue]
+	2384163721608 -> 2384156733384
+	2384163721608 [label="decoder.decoder_feature.CRBlock1.path1.conv1x9.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797483784 -> 2383797485256
+	2383797483784 [label="decoder.decoder_feature.CRBlock1.path1.conv9x1.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2383797485000 -> 2383797483656
+	2383797485000 [label="decoder.decoder_feature.CRBlock1.path1.conv9x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797483400 -> 2383797483656
+	2383797483400 [label="decoder.decoder_feature.CRBlock1.path1.conv9x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797485512 -> 2383797485064
+	2383797485512 [label=NativeBatchNormBackward]
+	2383797483912 -> 2383797485512
+	2383797483912 [label=MkldnnConvolutionBackward]
+	2383797476680 -> 2383797483912
+	2383797476680 [label=LeakyReluBackward0]
+	2383797475080 -> 2383797476680
+	2383797475080 [label=NativeBatchNormBackward]
+	2383797477000 -> 2383797475080
+	2383797477000 [label=MkldnnConvolutionBackward]
+	2383797484488 -> 2383797477000
+	2383797505864 -> 2383797477000
+	2383797505864 [label="decoder.decoder_feature.CRBlock1.path2.conv1x5.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383797476552 -> 2383797475080
+	2383797476552 [label="decoder.decoder_feature.CRBlock1.path2.conv1x5.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797475720 -> 2383797475080
+	2383797475720 [label="decoder.decoder_feature.CRBlock1.path2.conv1x5.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797476744 -> 2383797483912
+	2383797476744 [label="decoder.decoder_feature.CRBlock1.path2.conv5x1.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2384156729736 -> 2383797485512
+	2384156729736 [label="decoder.decoder_feature.CRBlock1.path2.conv5x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2384156731848 -> 2383797485512
+	2384156731848 [label="decoder.decoder_feature.CRBlock1.path2.conv5x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797483528 -> 2383797485192
+	2383797483528 [label="decoder.decoder_feature.CRBlock1.conv1x1.conv.weight
+ (32, 64, 1, 1)" fillcolor=lightblue]
+	2383797481800 -> 2383797481992
+	2383797481800 [label="decoder.decoder_feature.CRBlock1.conv1x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797481544 -> 2383797481992
+	2383797481544 [label="decoder.decoder_feature.CRBlock1.conv1x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797484488 -> 2383797484680
+	2383797484872 -> 2383797485128
+	2383797484872 [label="decoder.decoder_feature.CRBlock2.path1.conv3x3.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2383797483464 -> 2383797484104
+	2383797483464 [label="decoder.decoder_feature.CRBlock2.path1.conv3x3.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797484232 -> 2383797484104
+	2383797484232 [label="decoder.decoder_feature.CRBlock2.path1.conv3x3.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797481672 -> 2383797482056
+	2383797481672 [label="decoder.decoder_feature.CRBlock2.path1.conv1x9.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2383797484616 -> 2383797358664
+	2383797484616 [label="decoder.decoder_feature.CRBlock2.path1.conv1x9.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797484360 -> 2383797358664
+	2383797484360 [label="decoder.decoder_feature.CRBlock2.path1.conv1x9.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797362376 -> 2383797360136
+	2383797362376 [label="decoder.decoder_feature.CRBlock2.path1.conv9x1.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2383797360456 -> 2383797358792
+	2383797360456 [label="decoder.decoder_feature.CRBlock2.path1.conv9x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797361288 -> 2383797358792
+	2383797361288 [label="decoder.decoder_feature.CRBlock2.path1.conv9x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797361992 -> 2383797359240
+	2383797361992 [label=NativeBatchNormBackward]
+	2383797361096 -> 2383797361992
+	2383797361096 [label=MkldnnConvolutionBackward]
+	2383797482184 -> 2383797361096
+	2383797482184 [label=LeakyReluBackward0]
+	2383797484744 -> 2383797482184
+	2383797484744 [label=NativeBatchNormBackward]
+	2383797483976 -> 2383797484744
+	2383797483976 [label=MkldnnConvolutionBackward]
+	2383797359304 -> 2383797483976
+	2383797476232 -> 2383797483976
+	2383797476232 [label="decoder.decoder_feature.CRBlock2.path2.conv1x5.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383797482824 -> 2383797484744
+	2383797482824 [label="decoder.decoder_feature.CRBlock2.path2.conv1x5.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797483848 -> 2383797484744
+	2383797483848 [label="decoder.decoder_feature.CRBlock2.path2.conv1x5.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797482952 -> 2383797361096
+	2383797482952 [label="decoder.decoder_feature.CRBlock2.path2.conv5x1.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2383797360584 -> 2383797361992
+	2383797360584 [label="decoder.decoder_feature.CRBlock2.path2.conv5x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797484040 -> 2383797361992
+	2383797484040 [label="decoder.decoder_feature.CRBlock2.path2.conv5x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797359688 -> 2383797362504
+	2383797359688 [label="decoder.decoder_feature.CRBlock2.conv1x1.conv.weight
+ (32, 64, 1, 1)" fillcolor=lightblue]
+	2383797359176 -> 2383797362312
+	2383797359176 [label="decoder.decoder_feature.CRBlock2.conv1x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797361864 -> 2383797362312
+	2383797361864 [label="decoder.decoder_feature.CRBlock2.conv1x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797359304 -> 2383797361544
+	2383797361160 -> 2383797358984
+	2383797361160 [label="decoder.decoder_feature.CRBlock3.path1.conv3x3.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2383797359112 -> 2383797360520
+	2383797359112 [label="decoder.decoder_feature.CRBlock3.path1.conv3x3.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797359752 -> 2383797360520
+	2383797359752 [label="decoder.decoder_feature.CRBlock3.path1.conv3x3.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797362120 -> 2383797372296
+	2383797362120 [label="decoder.decoder_feature.CRBlock3.path1.conv1x9.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2383797371016 -> 2383797372104
+	2383797371016 [label="decoder.decoder_feature.CRBlock3.path1.conv1x9.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797372360 -> 2383797372104
+	2383797372360 [label="decoder.decoder_feature.CRBlock3.path1.conv1x9.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797371720 -> 2383797374344
+	2383797371720 [label="decoder.decoder_feature.CRBlock3.path1.conv9x1.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2383797373384 -> 2383797373640
+	2383797373384 [label="decoder.decoder_feature.CRBlock3.path1.conv9x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797371656 -> 2383797373640
+	2383797371656 [label="decoder.decoder_feature.CRBlock3.path1.conv9x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797371400 -> 2383797374408
+	2383797371400 [label=NativeBatchNormBackward]
+	2383797374088 -> 2383797371400
+	2383797374088 [label=MkldnnConvolutionBackward]
+	2383797358920 -> 2383797374088
+	2383797358920 [label=LeakyReluBackward0]
+	2383797359368 -> 2383797358920
+	2383797359368 [label=NativeBatchNormBackward]
+	2383797362248 -> 2383797359368
+	2383797362248 [label=MkldnnConvolutionBackward]
+	2383797374536 -> 2383797362248
+	2383797476360 -> 2383797362248
+	2383797476360 [label="decoder.decoder_feature.CRBlock3.path2.conv1x5.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383797360072 -> 2383797359368
+	2383797360072 [label="decoder.decoder_feature.CRBlock3.path2.conv1x5.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797360648 -> 2383797359368
+	2383797360648 [label="decoder.decoder_feature.CRBlock3.path2.conv1x5.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797360008 -> 2383797374088
+	2383797360008 [label="decoder.decoder_feature.CRBlock3.path2.conv5x1.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2383797374728 -> 2383797371400
+	2383797374728 [label="decoder.decoder_feature.CRBlock3.path2.conv5x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797372936 -> 2383797371400
+	2383797372936 [label="decoder.decoder_feature.CRBlock3.path2.conv5x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797373320 -> 2383797372616
+	2383797373320 [label="decoder.decoder_feature.CRBlock3.conv1x1.conv.weight
+ (32, 64, 1, 1)" fillcolor=lightblue]
+	2383797374280 -> 2383797373000
+	2383797374280 [label="decoder.decoder_feature.CRBlock3.conv1x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797371080 -> 2383797373000
+	2383797371080 [label="decoder.decoder_feature.CRBlock3.conv1x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383797374536 -> 2383797373832
+	2383845495880 -> 2383845497032
+	2383845495880 [label="decoder.decoder_feature.CRBlock4.path1.conv3x3.conv.weight
+ (32, 32, 3, 3)" fillcolor=lightblue]
+	2383845496520 -> 2383845495688
+	2383845496520 [label="decoder.decoder_feature.CRBlock4.path1.conv3x3.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845496968 -> 2383845495688
+	2383845496968 [label="decoder.decoder_feature.CRBlock4.path1.conv3x3.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845494984 -> 2383845495624
+	2383845494984 [label="decoder.decoder_feature.CRBlock4.path1.conv1x9.conv.weight
+ (32, 32, 1, 9)" fillcolor=lightblue]
+	2383845495048 -> 2383845496648
+	2383845495048 [label="decoder.decoder_feature.CRBlock4.path1.conv1x9.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845495432 -> 2383845496648
+	2383845495432 [label="decoder.decoder_feature.CRBlock4.path1.conv1x9.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845497416 -> 2383845495944
+	2383845497416 [label="decoder.decoder_feature.CRBlock4.path1.conv9x1.conv.weight
+ (32, 32, 9, 1)" fillcolor=lightblue]
+	2383845497544 -> 2383845498184
+	2383845497544 [label="decoder.decoder_feature.CRBlock4.path1.conv9x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845497864 -> 2383845498184
+	2383845497864 [label="decoder.decoder_feature.CRBlock4.path1.conv9x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845495816 -> 2383845495496
+	2383845495816 [label=NativeBatchNormBackward]
+	2383845497672 -> 2383845495816
+	2383845497672 [label=MkldnnConvolutionBackward]
+	2383845495368 -> 2383845497672
+	2383845495368 [label=LeakyReluBackward0]
+	2383797360840 -> 2383845495368
+	2383797360840 [label=NativeBatchNormBackward]
+	2383797359944 -> 2383797360840
+	2383797359944 [label=MkldnnConvolutionBackward]
+	2383845498440 -> 2383797359944
+	2383797374920 -> 2383797359944
+	2383797374920 [label="decoder.decoder_feature.CRBlock4.path2.conv1x5.conv.weight
+ (32, 32, 1, 5)" fillcolor=lightblue]
+	2383797371272 -> 2383797360840
+	2383797371272 [label="decoder.decoder_feature.CRBlock4.path2.conv1x5.bn.weight
+ (32)" fillcolor=lightblue]
+	2383797373448 -> 2383797360840
+	2383797373448 [label="decoder.decoder_feature.CRBlock4.path2.conv1x5.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845495560 -> 2383845497672
+	2383845495560 [label="decoder.decoder_feature.CRBlock4.path2.conv5x1.conv.weight
+ (32, 32, 5, 1)" fillcolor=lightblue]
+	2383845497736 -> 2383845495816
+	2383845497736 [label="decoder.decoder_feature.CRBlock4.path2.conv5x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845496392 -> 2383845495816
+	2383845496392 [label="decoder.decoder_feature.CRBlock4.path2.conv5x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845498568 -> 2383845496584
+	2383845498568 [label="decoder.decoder_feature.CRBlock4.conv1x1.conv.weight
+ (32, 64, 1, 1)" fillcolor=lightblue]
+	2383845496904 -> 2383845496712
+	2383845496904 [label="decoder.decoder_feature.CRBlock4.conv1x1.bn.weight
+ (32)" fillcolor=lightblue]
+	2383845496776 -> 2383845496712
+	2383845496776 [label="decoder.decoder_feature.CRBlock4.conv1x1.bn.bias
+ (32)" fillcolor=lightblue]
+	2383845498440 -> 2383845496264
+	2383845497096 -> 2383797353032
+	2383845497096 [label="decoder.out_cov.weight
+ (2, 32, 3, 3)" fillcolor=lightblue]
+	2383845497608 -> 2383797353032
+	2383845497608 [label="decoder.out_cov.bias
+ (2)" fillcolor=lightblue]
+}

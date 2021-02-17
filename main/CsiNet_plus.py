@@ -107,6 +107,10 @@ class Encoder(nn.Module):
         self.fc = nn.Linear(768, int(feedback_bits / self.num_quan_bits))
         self.sig = nn.Sigmoid()
         self.quantize = QuantizationLayer(self.num_quan_bits)
+        # if self.quantization:
+        #     for p in self.parameters():
+        #         p.requires_grad=False
+    
     def forward(self, x):
         x = x.permute(0, 3, 1, 2)
         out = self.encoder_feature(x)
