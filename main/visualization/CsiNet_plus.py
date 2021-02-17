@@ -1,6 +1,5 @@
-'''
-bao
-'''
+#!/usr/bin/env python
+# coding: utf-8
 
 import numpy as np
 import torch.nn as nn
@@ -8,8 +7,14 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from collections import OrderedDict
+# from CsiNet_plus import *
+from torchviz import make_dot, make_dot_from_trace
+import tensorwatch as tw
+import torchsnooper
 
-NUM_FEEDBACK_BITS = 512
+NUM_FEEDBACK_BITS = 512 #pytorch版本一定要有这个参数
+
+
 # This part implement the quantization and dequantization operations.
 # The output of the encoder must be the bitstream.
 def Num2Bit(Num, B):
@@ -30,7 +35,7 @@ def Num2Bit(Num, B):
 def Bit2Num(Bit, B):
     Bit_ = Bit.type(torch.float32)
     Bit_ = torch.reshape(Bit_, [-1, int(Bit_.shape[1] / B), B])
-    num = torch.zeros(Bit_[:, :, 1].shape).cuda()
+    num = torch.zeros(Bit_[:, :, 1].shape)
     for i in range(B):
         num = num + Bit_[:, :, i] * 2 ** (B - 1 - i)
     return num
@@ -116,58 +121,56 @@ class ConvBN(nn.Sequential):
             ('bn', nn.BatchNorm2d(out_planes))
         ]))
 
-
 class CRBlock(nn.Module):
-    def __init__(self,ch):
+    def __init__(self):
         super(CRBlock, self).__init__()
-        self.ch = ch
         self.path1 = nn.Sequential(OrderedDict([
-            ('conv3x3', ConvBN(ch, ch, 3)),
+            ('conv3x3', ConvBN(32, 32, 3)),
             ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv1x9', ConvBN(ch, ch, [1, 7])),
+            ('conv1x9', ConvBN(32, 32, [1, 9])),
             ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv9x1', ConvBN(ch, ch, [7, 1])),
+            ('conv9x1', ConvBN(32, 32, [9, 1])),
         ]))
         self.path2 = nn.Sequential(OrderedDict([
-            ('conv1x5', ConvBN(ch, ch, [1, 5])),
+            ('conv1x5', ConvBN(32, 32, [1, 5])),
             ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv5x1', ConvBN(ch, ch, [5, 1])),
+            ('conv5x1', ConvBN(32, 32, [5, 1])),
         ]))
-        self.conv1x1 = ConvBN(ch * 2, ch, 1)
+        self.conv1x1 = ConvBN(32 * 2, 32, 1)
         self.identity = nn.Identity()
-        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=False)
+        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=True)
 
     def forward(self, x):
         identity = self.identity(x)
+        
         out1 = self.path1(x)
         out2 = self.path2(x)
         out = torch.cat((out1, out2), dim=1)
         out = self.relu(out)
         out = self.conv1x1(out)
-        out = self.relu(out)
-        out = out+identity
+        
+        out = self.relu(out + identity)
         return out
-    
     
 class CR_encoder(nn.Module):
     def __init__(self,ch):
         super().__init__()
         self.ch = ch
         self.encoder1 = nn.Sequential(OrderedDict([
-            ("conv1x7_bn", ConvBN(ch, ch, [1, 7])),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ("conv7x1_bn", ConvBN(ch, ch, [7, 1])),
+            ("conv1x9_bn", ConvBN(ch, ch, [1, 9])),
+            ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ("conv9x1_bn", ConvBN(ch, ch, [9, 1])),
         ]))
         self.encoder2 = ConvBN(ch,ch, 3)
         self.encoder3 = nn.Sequential(OrderedDict([
             ("conv1x5_bn", ConvBN(ch, ch, [1, 5])),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
             ("conv5x1_bn", ConvBN(ch, ch, [5, 1])),
         ]))
         self.encoder_conv = nn.Sequential(OrderedDict([
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
             ("conv1x1_bn", ConvBN(ch*3, ch, 1)),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
+            #("relu", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
         ]))
     def forward(self, x):
         encode1 = self.encoder1(x)
@@ -193,17 +196,42 @@ class ResBlock_CRNET(nn.Module):
             resblock.append(ConvBN(ch*3,ch,1))
             resblock.append(nn.LeakyReLU(negative_slope=0.3, inplace=False))
             self.module_list.append(resblock)
+        self.identity = nn.Identity()   
     def forward(self,x):
         for module in self.module_list:
             h = x
-            y = x
+            identity = self.identity(x)
             for res in module:
                 h = res(h)
-            x = y+h if self.shortcut else h 
-        return x 
-
+            out = identity+h if self.shortcut else h 
+        return out    
+    
+class ResBlock(nn.Module):
+    def __init__(self,ch,nblocks=1,shortcut=True):
+        super().__init__()
+        self.shortcut= shortcut
+        self.module_list = nn.ModuleList()
+        self.identity = nn.Identity() 
+        for i in range(nblocks):
+            resblock = nn.ModuleList()
+            resblock.append(ConvBN(ch,ch,1))
+            resblock.append(nn.LeakyReLU(negative_slope=0.3, inplace=True))
+            resblock.append(ConvBN(ch,ch,3))
+            resblock.append(nn.LeakyReLU(negative_slope=0.3, inplace=True))
+            resblock.append(ConvBN(ch,ch,1))
+            self.module_list.append(resblock)
+    def forward(self,x):
+        for module in self.module_list:
+            h = x 
+            identity = self.identity(x)
+            for res in module:
+                h = res(h)
+            x = identity+h if self.shortcut else h 
+        return x     
+    
 class Encoder(nn.Module):
     B = 4
+
     def __init__(self, feedback_bits, quantization=True):
         super(Encoder, self).__init__()
         self.encoder = nn.Sequential(OrderedDict([
@@ -213,14 +241,9 @@ class Encoder(nn.Module):
             ("ResBlock_CRNET_2", ResBlock_CRNET(32)),
             ("ResBlock_CRNET_3", ResBlock_CRNET(32)),
             ("ResBlock_CRNET_4", ResBlock_CRNET(32)),
-            ("ResBlock_CRNET_5", ResBlock_CRNET(32)),
-            ("ResBlock_CRNET_6", ResBlock_CRNET(32)),
-            ("ResBlock_CRNET_7", ResBlock_CRNET(32)),
-            ("ResBlock_CRNET_8", ResBlock_CRNET(32)),
-            
-            
-            
         ]))
+        
+        
         self.encoder_conv = nn.Sequential(OrderedDict([
             ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
             ("conv1x1_bn", ConvBN(32, 2, 1)),
@@ -231,6 +254,9 @@ class Encoder(nn.Module):
         self.sig = nn.Sigmoid()
         self.quantize = QuantizationLayer(self.B)
         self.quantization = quantization 
+        # if self.quantization:
+        #     for p in self.parameters():
+        #         p.requires_grad=False
 
     def forward(self, x):
         x = x.permute(0,3,1,2)
@@ -257,11 +283,10 @@ class Decoder(nn.Module):
         decoder = OrderedDict([
             ("conv5x5_bn", ConvBN(2, 32, 5)),
             ("relu", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ("CRBlock1", CRBlock(32)),
-            ("CRBlock2", CRBlock(32)),
-            ("CRBlock3", CRBlock(32)),
-            ("CRBlock4", CRBlock(32)),
-            
+            ("CRBlock1", CRBlock()),
+            ("CRBlock2", CRBlock()),
+            ("CRBlock3", CRBlock()),
+            ("CRBlock4", CRBlock()),
         ])
         self.decoder_feature = nn.Sequential(decoder)
         self.out_cov = conv3x3(32, 2)
@@ -297,54 +322,8 @@ class AutoEncoder(nn.Module):
         return out
 
 
-def NMSE(x, x_hat):
-    x_real = np.reshape(x[:, :, :, 0], (len(x), -1))
-    x_imag = np.reshape(x[:, :, :, 1], (len(x), -1))
-    x_hat_real = np.reshape(x_hat[:, :, :, 0], (len(x_hat), -1))
-    x_hat_imag = np.reshape(x_hat[:, :, :, 1], (len(x_hat), -1))
-    x_C = x_real - 0.5 + 1j * (x_imag - 0.5)
-    x_hat_C = x_hat_real - 0.5 + 1j * (x_hat_imag - 0.5)
-    power = np.sum(abs(x_C) ** 2, axis=1)
-    mse = np.sum(abs(x_C - x_hat_C) ** 2, axis=1)
-    nmse = np.mean(mse / power)
-    return nmse
+x = torch.randn(128, 24, 16, 2)
+model = AutoEncoder(512)
+g = make_dot(model(x), params=dict(model.named_parameters()))
 
-def NMSE_cuda(x, x_hat):
-    x_real = x[:, :, :, 0].view(len(x),-1) - 0.5
-    x_imag = x[:, :, :, 1].view(len(x),-1) - 0.5
-    x_hat_real = x_hat[:, :, :, 0].view(len(x_hat), -1) - 0.5
-    x_hat_imag = x_hat[:, :, :, 1].view(len(x_hat), -1) - 0.5
-    power = torch.sum(x_real**2 + x_imag**2, axis=1)
-    mse = torch.sum((x_real-x_hat_real)**2 + (x_imag-x_hat_imag)**2, axis=1)
-    nmse = mse/power
-    return nmse
-    
-class NMSELoss(nn.Module):
-    def __init__(self, reduction='sum'):
-        super(NMSELoss, self).__init__()
-        self.reduction = reduction
-
-    def forward(self, x_hat, x):
-        nmse = NMSE_cuda(x, x_hat)
-        if self.reduction == 'mean':
-            nmse = torch.mean(nmse) 
-        else:
-            nmse = torch.sum(nmse)
-        return nmse
-
-def Score(NMSE):
-    score = 1 - NMSE
-    return score
-
-
-# dataLoader
-class DatasetFolder(Dataset):
-
-    def __init__(self, matData):
-        self.matdata = matData
-
-    def __len__(self):
-        return self.matdata.shape[0]
-    
-    def __getitem__(self, index):
-        return self.matdata[index] #, self.matdata[index]
+g.render('espnet_model', view=False)

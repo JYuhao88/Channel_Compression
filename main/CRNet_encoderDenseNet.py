@@ -1,11 +1,10 @@
-
 import numpy as np
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from collections import OrderedDict
-
+from densenet import *
 NUM_FEEDBACK_BITS = 512
 # This part implement the quantization and dequantization operations.
 # The output of the encoder must be the bitstream.
@@ -145,84 +144,12 @@ class CRBlock(nn.Module):
         out = out+identity
         return out
     
-    
-class CR_encoder(nn.Module):
-    def __init__(self,ch):
-        super().__init__()
-        self.ch = ch
-        self.encoder1 = nn.Sequential(OrderedDict([
-            ("conv1x7_bn", ConvBN(ch, ch, [1, 7])),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ("conv7x1_bn", ConvBN(ch, ch, [7, 1])),
-        ]))
-        self.encoder2 = ConvBN(ch,ch, 3)
-        self.encoder3 = nn.Sequential(OrderedDict([
-            ("conv1x5_bn", ConvBN(ch, ch, [1, 5])),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ("conv5x1_bn", ConvBN(ch, ch, [5, 1])),
-        ]))
-        self.encoder_conv = nn.Sequential(OrderedDict([
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ("conv1x1_bn", ConvBN(ch*3, ch, 1)),
-            ("relu2", nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-        ]))
-    def forward(self, x):
-        encode1 = self.encoder1(x)
-        encode2 = self.encoder2(x)
-        encode3 = self.encoder3(x)
-        out = torch.cat((encode1, encode2,encode3), dim=1)
-        #out = self.encoder_conv(out)
-        return out
-    
-    
-    
-class ResBlock_CRNET(nn.Module):
-    def __init__(self,ch,nblocks=1,shortcut=True):
-        super().__init__()
-        self.shortcut= shortcut
-        self.module_list = nn.ModuleList()
-        for i in range(nblocks):
-            resblock = nn.ModuleList()
-            resblock.append(ConvBN(ch,ch,1))
-            resblock.append(nn.LeakyReLU(negative_slope=0.3, inplace=False))
-            resblock.append(CR_encoder(ch))
-            resblock.append(nn.LeakyReLU(negative_slope=0.3, inplace=False))
-            resblock.append(ConvBN(ch*3,ch,1))
-            resblock.append(nn.LeakyReLU(negative_slope=0.3, inplace=False))
-            self.module_list.append(resblock)
-    def forward(self,x):
-        for module in self.module_list:
-            h = x
-            y = x
-            for res in module:
-                h = res(h)
-            x = y+h if self.shortcut else h 
-        return x 
 
 class Encoder(nn.Module):
     B = 4
     def __init__(self, feedback_bits, quantization=True):
         super(Encoder, self).__init__()
-        self.encoder = nn.Sequential(OrderedDict([
-            ("conv3x3_bn", ConvBN(2, 32, 3)),
-            ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ("ResBlock_CRNET_1", ResBlock_CRNET(32)),
-            ('bn1', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_2", ResBlock_CRNET(32)),
-            ('bn2', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_3", ResBlock_CRNET(32)),
-            ('bn3', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_4", ResBlock_CRNET(32)),
-            ('bn4', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_5", ResBlock_CRNET(32)),
-            ('bn5', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_6", ResBlock_CRNET(32)),
-            ('bn6', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_7", ResBlock_CRNET(32)),
-            ('bn7', nn.BatchNorm2d(32)),
-            ("ResBlock_CRNET_8", ResBlock_CRNET(32)),
-            ('bn8', nn.BatchNorm2d(32))
-        ]))
+        self.encoder = DenseNet(32, (6, 12, 24, 16), 64)
         self.encoder_conv = nn.Sequential(OrderedDict([
             ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
             ("conv1x1_bn", ConvBN(32, 2, 1)),
