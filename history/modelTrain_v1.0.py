@@ -51,7 +51,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--learning_rate", type=float, default=2e-3)
-    parser.add_argument("--print_freq", type=int, default=200)
+    parser.add_argument("--print_freq", type=int, default=100)
     parser.add_argument("--train_test_ratio", type=float, default=0.8)
     parser.add_argument("--feedback_bits", type=int, default=512)
     parser.add_argument("--is_quantization", type=bool, default=False)
@@ -80,7 +80,9 @@ if __name__ == "__main__":
     if args.continue_training:
         model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
         model.decoder.load_state_dict(torch.load(args.model_save_address + '/decoder.pth.tar')['state_dict'])
-    
+    else:
+        model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
+
     if len(args.gpu_list.split(',')) > 1:
         model = torch.nn.DataParallel(model).cuda()  # model.module
     else:
@@ -90,7 +92,7 @@ if __name__ == "__main__":
     criterion_test = NMSELoss(reduction='sum')
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5, last_epoch=-1)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100, eta_min=1e-6, last_epoch=-1)
 
     # Data loading
     mat = sio.loadmat(args.data_load_address + '/H_4T4R.mat')
