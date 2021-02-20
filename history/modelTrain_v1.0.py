@@ -80,8 +80,8 @@ if __name__ == "__main__":
     if args.continue_training:
         model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
         model.decoder.load_state_dict(torch.load(args.model_save_address + '/decoder.pth.tar')['state_dict'])
-    else:
-        model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
+    # else:
+    #     model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
 
     if len(args.gpu_list.split(',')) > 1:
         model = torch.nn.DataParallel(model).cuda()  # model.module
