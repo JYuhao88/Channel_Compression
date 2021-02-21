@@ -124,9 +124,9 @@ class CRBlock(nn.Module):
         self.path1 = nn.Sequential(OrderedDict([
             ('conv3x3', ConvBN(ch, ch, 3)),
             ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv1x9', ConvBN(ch, ch, [1, 7])),
+            ('conv1x7', ConvBN(ch, ch, [1, 7])),
             ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv9x1', ConvBN(ch, ch, [7, 1])),
+            ('conv7x1', ConvBN(ch, ch, [7, 1])),
         ]))
         self.path2 = nn.Sequential(OrderedDict([
             ('conv1x5', ConvBN(ch, ch, [1, 5])),
