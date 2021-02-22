@@ -112,7 +112,7 @@ def conv(in_planes, out_planes, kernel_size=3, stride=1, groups=1):
     else:
         padding = (kernel_size - 1) // 2
     return  nn.Conv2d(in_planes, out_planes, kernel_size, stride,
-                    padding=padding, groups=groups, bias=False)
+                    padding=padding, groups=groups, bias=False, padding_mode='replicate')
 
 class ConvBN(nn.Sequential):
     def __init__(self, in_planes, out_planes, kernel_size, stride=1, groups=1):
@@ -122,66 +122,36 @@ class ConvBN(nn.Sequential):
             padding = (kernel_size - 1) // 2
         super(ConvBN, self).__init__(OrderedDict([
             ('conv', nn.Conv2d(in_planes, out_planes, kernel_size, stride,
-                               padding=padding, groups=groups, bias=False)),
+                               padding=padding, groups=groups, bias=False, padding_mode='replicate')),
             ('bn', nn.BatchNorm2d(out_planes))
         ]))
 
-class CR24x16(nn.Module):
+class Att24x16(nn.Module):
     def __init__(self, in_ch, ch):
-        super(CR24x16, self).__init__()
+        super(Att24x16, self).__init__()
         self.ch = ch
-        self.path1 = nn.Sequential(OrderedDict([
-            ('conv3x3', conv(ch, ch, 3)),
-            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv1x7', conv(ch, ch, [1, 7])),
-            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv7x1', conv(ch, ch, [7, 1])),
-        ]))
-        self.path2 = nn.Sequential(OrderedDict([
-            ('conv1x5', conv(ch, ch, [1, 5])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv5x1', conv(ch, ch, [5, 1])),
-        ]))
+        self.path1 = nn.Sequential(
+            conv(ch, ch, 3),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, ch, [1, 7]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, ch, [7, 1]),
+        )
+        self.path2 = nn.Sequential(
+            conv(ch, ch, [1, 5]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, ch, [5, 1]),
+        )
         self.in_conv =  nn.Sequential(
             ConvBN(in_ch, ch, 1),
-            nn.LeakyReLU(negative_slope=0.3, inplace=True))
+            nn.LeakyReLU(negative_slope=0.3, inplace=False))
         self.out_conv = conv(ch * 2, in_ch, 1)
         self.identity = nn.Identity()
-        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=True)
-
-    # @torchsnooper.snoop()
-    def forward(self, x):
-        identity = self.identity(x)
-        x = self.in_conv(x)
-        out1 = self.path1(x)
-        out2 = self.path2(x)
-        out = torch.cat((out1, out2), dim=1)
-        out = self.relu(out)
-        out = self.out_conv(out)
-        out = self.relu(out)
-        return out + identity
-
-class CR4x24(nn.Module):
-    def __init__(self, in_ch, ch):
-        super(CR4x24, self).__init__()
-        self.ch = ch
-        self.path1 = nn.Sequential(OrderedDict([
-            ('conv1x7', conv(ch, ch, [1, 7])),
-            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv3x1', conv(ch, ch, [3, 1])),
-        ]))
-        self.path2 = nn.Sequential(OrderedDict([
-            ('conv1x3', conv(ch, ch, [1, 3])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-        ]))
-        self.in_conv = nn.Sequential(
-            ConvBN(in_ch, ch, 1),
-            nn.LeakyReLU(negative_slope=0.3, inplace=True))
-        self.out_conv = conv(ch*2, in_ch, 1)
+        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=False)
         self.identity = nn.Identity()
+        self.bn = nn.BatchNorm2d(in_ch)
 
     def forward(self, x):
-        x = x.permute(0,3,1,2)
         identity = self.identity(x)
         x = self.in_conv(x)
         out1 = self.path1(x)
@@ -190,74 +160,133 @@ class CR4x24(nn.Module):
         out = self.relu(out)
         out = self.out_conv(out)
         out = self.relu(out) + identity
+        return self.bn(out)
+
+
+class Att4x24(nn.Module):
+    def __init__(self, in_ch, ch):
+        super(Att4x24, self).__init__()
+        self.ch = ch
+        self.attention1 = nn.Sequential(
+            conv(in_ch, ch, 1),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, in_ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+        )
+        self.attention2 = nn.Sequential(
+            conv(in_ch, ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, in_ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+        )
+        self.attention3 = nn.Sequential(
+            conv(in_ch, ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, in_ch, 1),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False)
+        )
+        self.identity = nn.Identity()
+        self.pool = nn.AdaptiveAvgPool2d((1, 1))
+    
+    def forward(self, x):
+        x = x.permute(0,3,1,2)
+        # identity = self.identity(x)
+        out1 = self.attention1(x)
+        out2 = self.attention2(x)
+        out3 = self.attention3(x)
+        out = torch.cat((out1*x, out2*x, out3*x), 2)
         return out.permute(0, 2, 3, 1)
 
-class CR4x16(nn.Module):
+class Att4x16(nn.Module):
     def __init__(self, in_ch, ch):
-        super(CR4x16, self).__init__()
+        super(Att4x16, self).__init__()
         self.ch = ch
-        self.path1 = nn.Sequential(OrderedDict([
-            ('conv1x7', conv(ch, ch, [1, 7])),
-            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
-            ('conv3x1', conv(ch, ch, [3, 1])),
-        ]))
-        self.path2 = nn.Sequential(OrderedDict([
-            ('conv1x3', conv(ch, ch, [1, 3])),
-        ]))
-        self.conv_in = nn.Sequential(
-            ConvBN(in_ch, ch, 1),
-            nn.LeakyReLU(negative_slope=0.3, inplace=True))
-        self.conv_out = conv(ch*2, in_ch, 1)
+        self.attention1 = nn.Sequential(
+            conv(in_ch, ch, 1),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, in_ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+        )
+        self.attention2 = nn.Sequential(
+            conv(in_ch, ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, in_ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+        )
+        self.attention3 = nn.Sequential(
+            conv(in_ch, ch, [1, 3]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, in_ch, 1),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False)
+        )
+        self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.identity = nn.Identity()
-        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=True)
-    
     def forward(self, x):
         x = x.permute(0,2,1,3)
-        identity = self.identity(x)
-        x = self.conv_in(x)
-        out1 = self.path1(x)
-        out2 = self.path2(x)
-        out = torch.cat((out1, out2), dim=1)
-        out = self.relu(out)
-        out = self.conv_out(out)
-        out = self.relu(out) +identity
+        # identity = self.identity(x)
+        # out1 = self.pool(self.attention1(x))
+        # out2 = self.pool(self.attention2(out1))
+        # out3 = self.pool(self.attention3(out2))
+        out1 = self.attention1(x)
+        out2 = self.attention2(x)
+        out3 = self.attention3(x)
+        out = torch.cat((out1*x, out2*x, out3*x), 2)
         return out.permute(0, 2, 1, 3)
 
-class multiCRBlock(nn.Module):
-    def __init__(self, in_ch, out_ch):
-        super(multiCRBlock, self).__init__()
-        self.cr24x16 = CR24x16(in_ch, 32) # 4
-        self.cr4x16 = CR4x16(24, 192)     #24
-        self.cr4x24 = CR4x24(16, 128)     #16
-        self.conv = ConvBN(in_ch*3, out_ch, 1)
 
+class multiAttBlock(nn.Module):
+    def __init__(self,in_ch, out_ch):
+        super(multiAttBlock, self).__init__()
+        self.Att24x16 = Att24x16(in_ch[0], in_ch[0]*8) # 4
+        self.Att4x16 = Att4x16(in_ch[1], in_ch[1]*8)     #24
+        self.Att4x24 = Att4x24(in_ch[2], in_ch[2]*8)     #16
+        # self.conv = ConvBN(in_ch[0]*8, out_ch, 1)
+        self.conv = ConvBN(in_ch[0]*7, out_ch, 1)
+        self.identity = nn.Identity()
+        self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=False)
     
+    # @torchsnooper.snoop()
     def forward(self, x):
-        # out = self.cr24x16(x) + self.cr4x16(x) + self.cr4x24(x)
-        out24x16 = self.cr24x16(x)
-        out4x16 = self.cr4x16(x)
-        out4x24 = self.cr4x24(x)
+        # identity = self.identity(x)
+        out24x16 = self.Att24x16(x)
+        out4x16 = self.Att4x16(x)
+        out4x24 = self.Att4x24(x)
+        # out = torch.cat((identity, out24x16, out4x16, out4x24),1)
         out = torch.cat((out24x16, out4x16, out4x24),1)
         out = self.conv(out)
+        out = self.relu(out)
         return out
 
 
 class Encoder(nn.Module):
     B = 4
-    def __init__(self, feedback_bits, N = 64, quantization=True):
+    def __init__(self, feedback_bits, N = 32, quantization=True):
         super(Encoder, self).__init__()
         self.encoder = nn.Sequential(
-            multiCRBlock(4, N),
-            # nn.BatchNorm2d(N),
-            multiCRBlock(N, N),
-            # nn.BatchNorm2d(N),
-            multiCRBlock(N, 4),
-            # nn.BatchNorm2d(4),
+            multiAttBlock([4, 24, 16], 16),
+            nn.Conv2d(16, 16, 3, [1,1], 1, padding_mode='replicate'),
+            nn.BatchNorm2d(16),
+            multiAttBlock([16, 24, 16], 64),
+            nn.Conv2d(64, 64, 3, [1,1], 1, padding_mode='replicate'),
+            nn.BatchNorm2d(64),
+            multiAttBlock([64, 24, 16], 64),
+            nn.Conv2d(64, 64, 3, [2,2], 0, padding_mode='replicate'),
+            nn.BatchNorm2d(64),
+            # multiAttBlock([128, 11, 7], 256),
+            # nn.Conv2d(256, 256, 3, [2,2], 0, padding_mode='replicate'),
+            # nn.BatchNorm2d(256),
         )
+        fc_ch = 11*7*64
         self.encoder_out = nn.Sequential(
-            nn.Linear(1536, 768),
+            nn.Linear(fc_ch, fc_ch//2),
             nn.Dropout(0.2),
-            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            nn.Linear(fc_ch//2, 768),
+            nn.Dropout(0.2),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            nn.Linear(768, 768),
+            nn.Dropout(0.2),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
             nn.Linear(768, int(feedback_bits / self.B)),
             nn.Dropout(0.2),
             nn.Sigmoid()
@@ -268,12 +297,12 @@ class Encoder(nn.Module):
 
     # @torchsnooper.snoop()
     def forward(self, x):
-        x = x.permute(0,3,1,2)
+        x = x.permute(0,3,1,2) - 0.5
         r = torch.sqrt(x[:,0,:,:]**2+x[:,1,:,:]**2).unsqueeze(1)
         theta = torch.atan2(x[:,0,:,:],x[:,1,:,:]).unsqueeze(1)
         x = torch.cat((x, r, theta), 1)
         out = self.encoder(x)
-        out = out.reshape(-1, 1536)
+        out = out.reshape(-1, 11*7*64)
         out = self.encoder_out(out)
         if self.quantization:
             out = self.quantize(out)
@@ -285,20 +314,18 @@ class CRBlock(nn.Module):
     def __init__(self,ch):
         super(CRBlock, self).__init__()
         self.ch = ch
-        self.path1 = nn.Sequential(OrderedDict([
-            ('conv3x3', conv(ch, ch, 3)),
-            ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv1x7', conv(ch, ch, [1, 7])),
-            ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv7x1', conv(ch, ch, [7, 1])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=True))
-        ]))
-        self.path2 = nn.Sequential(OrderedDict([
-            ('conv1x5', conv(ch, ch, [1, 5])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=False)),
-            ('conv5x1', conv(ch, ch, [5, 1])),
-            ('relu', nn.LeakyReLU(negative_slope=0.3, inplace=True))
-        ]))
+        self.path1 = nn.Sequential(
+            conv(ch, ch, 3),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, ch, [1, 7]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, ch, [7, 1]),
+        )
+        self.path2 = nn.Sequential(
+            conv(ch, ch, [1, 5]),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            conv(ch, ch, [5, 1]),
+        )
         self.conv1x1 = conv(ch * 2, ch, 1)
         self.identity = nn.Identity()
         self.relu = nn.LeakyReLU(negative_slope=0.3, inplace=False)
@@ -322,28 +349,27 @@ class Decoder(nn.Module):
         self.feedback_bits = feedback_bits
         self.dequantize = DequantizationLayer(self.B)
         self.fc = nn.Linear(int(feedback_bits / self.B), 768)
+        self.decoder_in = nn.Sequential(
+            nn.Linear(int(feedback_bits / self.B), 768),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
+            nn.Linear(768, 1536)
+        )
         # self.decoder_feature = nn.Sequential(
-        #     multiCRBlock(4, N),
-        #     multiCRBlock(N, N),
-        #     multiCRBlock(N, N),
-        #     multiCRBlock(N, 2),
+        #     multiAttBlock(4, N),
+        #     multiAttBlock(N, N),
+        #     multiAttBlock(N, N),
+        #     multiAttBlock(N, 2),
         # )
         self.decoder_feature = nn.Sequential(
             ConvBN(4, N, 3),
-            nn.LeakyReLU(negative_slope=0.3, inplace=True),
-            CRBlock(N),
-            nn.BatchNorm2d(N),
+            nn.LeakyReLU(negative_slope=0.3, inplace=False),
             CRBlock(N),
             nn.BatchNorm2d(N),
             CRBlock(N),
             nn.BatchNorm2d(N),
             ConvBN(N, 2, 3)
-        )
-        self.decoder_in = nn.Sequential(
-            nn.Linear(int(feedback_bits / self.B), 768),
-            nn.LeakyReLU(negative_slope=0.3, inplace=True),
-            nn.Linear(768, 1536)
-        )
+            )
+        
         # self.conv_out = ConvBN(4, 2, 3)
         self.sig = nn.Sigmoid()
         self.quantization = quantization        

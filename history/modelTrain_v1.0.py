@@ -139,7 +139,8 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            scheduler.step()  # 更新学习率
+            if epoch >3:
+                scheduler.step()  # 更新学习率
             
             if i % args.print_freq == 0:
                 print('Epoch: [{0}][{1}/{2}]\t'

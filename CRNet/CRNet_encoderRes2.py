@@ -207,7 +207,7 @@ class Encoder(nn.Module):
     def __init__(self, feedback_bits, quantization=True):
         super(Encoder, self).__init__()
         self.encoder = nn.Sequential(OrderedDict([
-            ("conv3x3_bn", ConvBN(2, 32, 3)),
+            ("conv3x3_bn", ConvBN(4, 32, 3)),
             ("relu1", nn.LeakyReLU(negative_slope=0.3, inplace=True)),
             ("ResBlock_CRNET_1", ResBlock_CRNET(32)),
             ('bn1', nn.BatchNorm2d(32)),
@@ -238,7 +238,11 @@ class Encoder(nn.Module):
         self.quantization = quantization 
 
     def forward(self, x):
-        x = x.permute(0,3,1,2)
+        x = x.permute(0,3,1,2) -0.5
+        r = torch.sqrt(x[:,0,:,:]**2+x[:,1,:,:]**2).unsqueeze(1)
+        theta = torch.atan2(x[:,0,:,:],x[:,1,:,:]).unsqueeze(1)
+        x = torch.cat((x, r, theta), 1)
+
         encode = self.encoder(x)
         out = self.encoder_conv(encode)
         out = out.reshape(-1, 768)
