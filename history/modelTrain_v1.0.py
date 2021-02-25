@@ -77,11 +77,25 @@ if __name__ == "__main__":
     model = AutoEncoder(args.feedback_bits)
     model = set_quantization(model, False)
 
-    if args.continue_training:
-        model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
-        model.decoder.load_state_dict(torch.load(args.model_save_address + '/decoder.pth.tar')['state_dict'])
-    # else:
+    # if args.continue_training:
     #     model.encoder.load_state_dict(torch.load(args.model_save_address + '/encoder.pth.tar')['state_dict'])
+    #     model.decoder.load_state_dict(torch.load(args.model_save_address + '/decoder.pth.tar')['state_dict'])
+
+    if args.continue_training:
+        not_load = ['fc.weight', 'fc.bias']
+        save_encoder_model = torch.load(args.model_save_address + '/encoder.pth.tar')
+        model_encoder_dict = model.encoder.state_dict()
+        encoder_load_list = list(set(model_encoder_dict.keys()).difference(set(not_load)))
+        state_encoder_dict = {k:v for k,v in dict(save_encoder_model['state_dict']).items() if k in encoder_load_list}
+        model_encoder_dict.update(state_encoder_dict)
+        model.encoder.load_state_dict(model_encoder_dict)
+
+        save_decoder_model = torch.load(args.model_save_address + '/decoder.pth.tar')
+        model_decoder_dict = model.decoder.state_dict()
+        decoder_load_list = list(set(model_decoder_dict.keys()).difference(set(not_load)))
+        state_decoder_dict = {k:v for k,v in dict(save_decoder_model['state_dict']).items() if k in encoder_load_list}
+        model_decoder_dict.update(state_decoder_dict)
+        model.decoder.load_state_dict(model_decoder_dict)
 
     if len(args.gpu_list.split(',')) > 1:
         model = torch.nn.DataParallel(model).cuda()  # model.module
