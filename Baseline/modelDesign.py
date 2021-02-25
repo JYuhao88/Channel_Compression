@@ -162,26 +162,39 @@ def Score(NMSE):
 
 
 def NMSE_cuda(x, x_hat):
-    x_real = x[:, 0, :, :].view(len(x),-1) - 0.5
-    x_imag = x[:, 1, :, :].view(len(x),-1) - 0.5
-    x_hat_real = x_hat[:, 0, :, :].view(len(x_hat), -1) - 0.5
-    x_hat_imag = x_hat[:, 1, :, :].view(len(x_hat), -1) - 0.5
+    x_real = x[:, :, :, 0].view(len(x),-1) - 0.5
+    x_imag = x[:, :, :, 1].view(len(x),-1) - 0.5
+    x_hat_real = x_hat[:, :, :, 0].view(len(x_hat), -1) - 0.5
+    x_hat_imag = x_hat[:, :, :, 1].view(len(x_hat), -1) - 0.5
     power = torch.sum(x_real**2 + x_imag**2, axis=1)
     mse = torch.sum((x_real-x_hat_real)**2 + (x_imag-x_hat_imag)**2, axis=1)
     nmse = mse/power
     return nmse
     
+def MSE_cuda(x, x_hat):
+    x_real = x[:, :, :, 0].view(len(x),-1) - 0.5
+    x_imag = x[:, :, :, 1].view(len(x),-1) - 0.5
+    x_hat_real = x_hat[:, :, :, 0].view(len(x_hat), -1) - 0.5
+    x_hat_imag = x_hat[:, :, :, 1].view(len(x_hat), -1) - 0.5
+    mse = torch.sum((x_real-x_hat_real)**2 + (x_imag-x_hat_imag)**2, axis=1)
+    return mse
+ 
 class NMSELoss(nn.Module):
     def __init__(self, reduction='sum'):
         super(NMSELoss, self).__init__()
         self.reduction = reduction
-
+ 
     def forward(self, x_hat, x):
-        nmse = NMSE_cuda(x, x_hat)
+        
         if self.reduction == 'mean':
-            nmse = torch.mean(nmse) 
-        else:
+            nmse = NMSE_cuda(x, x_hat)
+            nmse = torch.mean(nmse)
+        elif self.reduction == 'sum':
+            nmse = NMSE_cuda(x, x_hat)
             nmse = torch.sum(nmse)
+        else:
+            mse = MSE_cuda(x, x_hat)
+            nmse = torch.mean(mse)
         return nmse
         
 # Data Loader Class Defining

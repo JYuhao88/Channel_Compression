@@ -50,14 +50,14 @@ if __name__ == "__main__":
     parser.add_argument("--continue_training", type=bool, default=False)
     parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--learning_rate", type=float, default=2e-3)
+    parser.add_argument("--learning_rate", type=float, default=1e-3)
     parser.add_argument("--print_freq", type=int, default=100)
     parser.add_argument("--train_test_ratio", type=float, default=0.8)
-    parser.add_argument("--feedback_bits", type=int, default=512)
+    parser.add_argument("--feedback_bits", type=int, default=440)
     parser.add_argument("--is_quantization", type=bool, default=False)
     parser.add_argument("--data_load_address", type=str, default='./channelData')
     parser.add_argument("--model_save_address", type=str, default='./modelSubmit')
-    parser.add_argument("--gpu_list", type=str, default='0')
+    parser.add_argument("--gpu_list", type=str, default='0,1')
     args = parser.parse_args()
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_list
@@ -88,11 +88,15 @@ if __name__ == "__main__":
     else:
         model = model.cuda()
 
-    criterion = NMSELoss(reduction='mean') #nn.MSELoss()
+    # criterion = NMSELoss(reduction='mse') #nn.MSELoss()
+    criterion = nn.MSELoss().cuda()
     criterion_test = NMSELoss(reduction='sum')
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100, eta_min=1e-6, last_epoch=-1)
+#     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100, eta_min=1e-6, last_epoch=-1)
+#     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+#     scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer,base_lr=5e-4, max_lr=2e-3, step_size_up=200,
+#                                                   cycle_momentum=True, mode='exp_range', last_epoch=-1)
 
     # Data loading
     mat = sio.loadmat(args.data_load_address + '/H_4T4R.mat')
@@ -135,12 +139,13 @@ if __name__ == "__main__":
             input = input.cuda()
             output = model(input)
             
-            loss = criterion(input, output)
+            loss = criterion(output, input)
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
-            if epoch >3:
-                scheduler.step()  # 更新学习率
+            
+            # if epoch >2:
+            #     scheduler.step()  # 更新学习率
             
             if i % args.print_freq == 0:
                 print('Epoch: [{0}][{1}/{2}]\t'
@@ -156,7 +161,7 @@ if __name__ == "__main__":
                 # convert numpy to Tensor
                 input = input.cuda()
                 output = model(input)
-                total_loss += criterion_test(input, output).item()
+                total_loss += criterion_test(output, input).item()
             average_loss = total_loss / len(test_dataset)
             print('NMSE %.4f'%average_loss)
             if average_loss < best_loss:

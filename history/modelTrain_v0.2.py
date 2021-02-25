@@ -121,7 +121,7 @@ for epoch in range(epochs):
         input = input.cuda()
         output = model(input)
         
-        loss = criterion(input, output)
+        loss = criterion(output, input)
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
@@ -143,7 +143,7 @@ for epoch in range(epochs):
             # convert numpy to Tensor
             input = input.cuda()
             output = model(input)
-            total_loss += criterion_test(input, output).item()
+            total_loss += criterion_test(output, input).item()
         average_loss = total_loss / len(test_dataset)
         print('NMSE %.4f'%average_loss)
         if average_loss < best_loss:
