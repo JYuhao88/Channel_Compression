@@ -102,8 +102,8 @@ if __name__ == "__main__":
     else:
         model = model.cuda()
 
-    # criterion = NMSELoss(reduction='mse') #nn.MSELoss()
-    criterion = nn.MSELoss().cuda()
+    criterion = NMSELoss(reduction='mean') #nn.MSELoss()
+    # criterion = nn.MSELoss().cuda()
     criterion_test = NMSELoss(reduction='sum')
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
