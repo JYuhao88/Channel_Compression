@@ -496,7 +496,7 @@ class NMSELoss(nn.Module):
         super(NMSELoss, self).__init__()
         self.reduction = reduction
 
-    def forward(self, x_hat, x):
+    def forward(self, x, x_hat):
         nmse = NMSE_cuda(x, x_hat)
         if self.reduction == 'mean':
             nmse = torch.mean(nmse) 

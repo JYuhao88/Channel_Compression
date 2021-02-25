@@ -288,7 +288,6 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.feedback_bits = feedback_bits
         self.dequantize = DequantizationLayer(self.B)
-        self.fc = nn.Linear(int(feedback_bits / self.B), 768)
         decoder = OrderedDict([
             ("conv3x3_bn", ConvBN(2, channelNum, 3)),
             ("CRBlock1", CRBlock64()),
@@ -296,6 +295,7 @@ class Decoder(nn.Module):
         ])
         self.decoder_feature = nn.Sequential(decoder)
         self.out_cov = conv3x3(channelNum, 2)
+        self.fc = nn.Linear(int(feedback_bits / self.B), 768)
         self.sig = nn.Sigmoid()
         self.quantization = quantization
  
@@ -356,7 +356,7 @@ class NMSELoss(nn.Module):
         super(NMSELoss, self).__init__()
         self.reduction = reduction
  
-    def forward(self, x_hat, x):
+    def forward(self, x, x_hat):
         nmse = NMSE_cuda(x, x_hat)
         if self.reduction == 'mean':
             nmse = torch.mean(nmse)

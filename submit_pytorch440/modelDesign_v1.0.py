@@ -272,7 +272,14 @@ class Encoder(nn.Module):
         self.encoder_conv1 = nn.Sequential(OrderedDict([
             ("conv1x1_bn", ConvBN(channelNum * 2, 2, 1)),
         ]))
-        self.fc = nn.Linear(768, int(feedback_bits / self.B))
+        self.fc = nn.Sequential(
+            nn.Linear(768, 768),
+            Mish(),
+            nn.Linear(768, int(feedback_bits / self.B))
+            )
+        for p in self.parameters():
+            p.requires_grad = False   #预训练模型加载进来后全部设置为不更新参数，然后再后面加层
+
         self.sig = nn.Sigmoid()
         self.quantize = QuantizationLayer(self.B)
         self.quantization = quantization
@@ -302,7 +309,6 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.feedback_bits = feedback_bits
         self.dequantize = DequantizationLayer(self.B)
-        self.fc = nn.Linear(int(feedback_bits / self.B), 768)
         decoder = OrderedDict([
             ("conv3x3_bn", ConvBN(2, channelNum, 3)),
             ("CRBlock1", CRBlock64()),
@@ -310,6 +316,12 @@ class Decoder(nn.Module):
         ])
         self.decoder_feature = nn.Sequential(decoder)
         self.out_cov = conv(channelNum, 2, 1)
+        for p in self.parameters():
+            p.requires_grad = False   #预训练模型加载进来后全部设置为不更新参数，然后再后面加层
+        
+        self.fc = nn.Sequential(nn.Linear(int(feedback_bits / self.B), 768),
+                                Mish(),
+                                nn.Linear(768, 768))
         self.sig = nn.Sigmoid()
         self.quantization = quantization
  
@@ -370,7 +382,7 @@ class NMSELoss(nn.Module):
         super(NMSELoss, self).__init__()
         self.reduction = reduction
  
-    def forward(self, x_hat, x):
+    def forward(self, x, x_hat):
         nmse = NMSE_cuda(x, x_hat)
         if self.reduction == 'mean':
             nmse = torch.mean(nmse)
