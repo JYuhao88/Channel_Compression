@@ -11,6 +11,9 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 import torchvision.models as models
+import random
+import numpy as np
+import os
 
 import sys
 import math
@@ -61,14 +64,21 @@ import torchsnooper
 # y = z**2 + x
 # print(y.requires_grad)
 
-x = torch.rand(128, 24, 16, 2)
-x_hat = torch.rand(128, 24, 16, 2)
-x_real = x[:, :, :, 0].view(len(x),-1) - 0.5
-x_imag = x[:, :, :, 1].view(len(x),-1) - 0.5
-x_hat_real = x_hat[:, :, :, 0].view(len(x_hat), -1) - 0.5
-x_hat_imag = x_hat[:, :, :, 1].view(len(x_hat), -1) - 0.5
-power = torch.sum(x_real**2 + x_imag**2, axis=1)
-mse = torch.sum((x_real-x_hat_real)**2 + (x_imag-x_hat_imag)**2, axis=1)
-nmse = mse/power
+SEED = 42
+def seed_everything(seed=42):
+    random.seed(seed)
+    os.environ['PYHTONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+seed_everything(SEED)
+print(torch.randperm(4))
+# a=torch.rand(3,5)
+# print(a)
 
-print(mse.size())
+# a=a[torch.randperm(a.size(0))]
+# print(a)
+
+# a=a[:,torch.randperm(a.size(1))]
+# print(a)
