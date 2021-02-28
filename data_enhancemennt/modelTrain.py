@@ -56,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--learning_rate", type=float, default=1e-4)
     parser.add_argument("--print_freq", type=int, default=100)
-    parser.add_argument("--train_test_ratio", type=float, default=0.9)
+    parser.add_argument("--train_test_ratio", type=float, default=0.8)
     parser.add_argument("--feedback_bits", type=int, default=440)
     parser.add_argument("--is_quantization", type=bool, default=True)
     parser.add_argument("--data_load_address", type=str, default='./channelData')
@@ -109,6 +109,8 @@ if __name__ == "__main__":
     # data1 = data[:, :-4, :, :]
     # data2 = data[:, -4:, :, :]
     # data = np.concatenate((data2, data1), axis=1)
+    # del data1, data2
+
     # split data for training(80%) and validation(20%)
     np.random.shuffle(data)
     start = int(data.shape[0] * args.train_test_ratio)

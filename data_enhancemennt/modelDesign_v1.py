@@ -188,13 +188,16 @@ class CRBlock64(nn.Module):
         self.relu = Mish()
  
     def forward(self, x):
+        # shuffle
+        # x = column_shuffle(x, 0.5, 'random')
+
         identity = self.identity(x)
         x = self.convbncrb(x)
         out1 = self.path1(x)
         out2 = self.path2(x)
 
-        out1 = column_shuffle(out1, 0.3, 'grouping')
-        out2 = column_shuffle(out2, 0.3, 'grouping')
+        out1 = column_shuffle(out1, 0.3, 'random')
+        out2 = column_shuffle(out2, 0.3, 'random')
 
         out = torch.cat((out1, out2), dim=1)
         out = self.relu(out)
@@ -247,9 +250,6 @@ class Encoder_conv(nn.Module):
         self.relu = Mish()
  
     def forward(self, input):
-        # #shuffle column
-        # input = column_shuffle(input, 0.5)
-        
         x2 = self.conv2(input)
         x3 = self.conv3(x2)
         x4 = self.conv4(x3)
@@ -287,11 +287,13 @@ class Encoder(nn.Module):
     def forward(self, x):
         x = x.permute(0,3,1,2)-0.5
         x = self.convban(x)
+        # x = column_shuffle(x, 0.5, 'random')
+
         encode1 = self.encoder1(x)
         encode2 = self.encoder2(x)
 
-        encode1 = column_shuffle(encode1, 0.3, 'grouping')
-        encode2 = column_shuffle(encode2, 0.3, 'grouping')
+        encode1 = column_shuffle(encode1, 0.3, 'random')
+        encode2 = column_shuffle(encode2, 0.3, 'random')
 
         out = torch.cat((encode1, encode2), dim=1)
         out = self.encoder_conv(out)
